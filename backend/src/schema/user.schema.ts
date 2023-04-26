@@ -1,19 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-// import { User as _User } from '@schema/user';
+import { IUser } from '@schema/user';
 import { HydratedDocument } from 'mongoose';
 
-export class _User {
-  email: string;
-  hashedPassword: string;
-}
-
 @Schema()
-export class User extends _User {
+export class User implements IUser {
   @Prop()
   email: string;
 
   @Prop()
   hashedPassword: string;
+
+  @Prop()
+  salt: string;
 }
 
 export type UserDocument = HydratedDocument<User>;
