@@ -4,6 +4,9 @@
   "description": "WebRTC를 통한 Group Chatting 구현",
   "main": "index.js",
   "scripts": {
+    "postinstall:front": "npm install --prefix frontend",
+    "postinstall:back": "npm install --prefix backend",
+    "postinstall": "npm run postinstall:back && npm run postinstall:front",
     "format:front": "npm run format --prefix frontend",
     "format:back": "npm run format --prefix backend",
     "format": "npm run format:back && npm run format:front",
