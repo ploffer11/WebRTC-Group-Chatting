@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@schema/*": ["./schema/*.d"]
+    }
+  }
+}
