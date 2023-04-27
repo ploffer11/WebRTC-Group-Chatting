@@ -5,13 +5,13 @@ import { HydratedDocument } from 'mongoose';
 @Schema()
 export class User implements IUser {
   @Prop()
-  email: string;
-
-  @Prop()
-  hashedPassword: string;
+  username: string;
 
   @Prop()
   salt: string;
+
+  @Prop()
+  saltedPassword: string;
 }
 
 export type UserDocument = HydratedDocument<User>;

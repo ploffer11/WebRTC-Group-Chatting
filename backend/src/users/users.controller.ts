@@ -20,7 +20,10 @@ export class UsersController {
 
   @Post()
   create() {
-    return this.usersService.create();
+    return this.usersService.create({
+      username: 'webrtc@example.com',
+      password: 'webrtc',
+    });
   }
 
   // @Get(':id')

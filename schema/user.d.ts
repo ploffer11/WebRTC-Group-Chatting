@@ -1,7 +1,12 @@
 interface IUser {
-  email: string;
-  hashedPassword: string;
+  username: string;
   salt: string;
+  saltedPassword: string;
 }
 
-export { IUser };
+interface ICreateUser {
+  username: string;
+  password: string;
+}
+
+export { IUser, ICreateUser };
