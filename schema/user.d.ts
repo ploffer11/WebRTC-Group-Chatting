@@ -1,5 +1,8 @@
-interface IUser {
+interface IUserTag {
   username: string;
+}
+
+interface IUser extends IUserTag {
   salt: string;
   saltedPassword: string;
 }
@@ -9,4 +12,4 @@ interface ICreateUser {
   password: string;
 }
 
-export { IUser, ICreateUser };
+export { IUserTag, IUser, ICreateUser };

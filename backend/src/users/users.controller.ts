@@ -21,7 +21,7 @@ export class UsersController {
   @Post()
   create() {
     return this.usersService.create({
-      username: 'webrtc@example.com',
+      username: 'webrtc',
       password: 'webrtc',
     });
   }
