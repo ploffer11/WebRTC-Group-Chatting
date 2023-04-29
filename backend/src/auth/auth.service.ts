@@ -26,7 +26,6 @@ export class AuthService {
     const saltedPassword = this.usersSerivce.saltPassword(password, user.salt);
 
     if (user.saltedPassword === saltedPassword) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       return { username: user.username };
     }
 
