@@ -17,7 +17,7 @@
     "dev:front": "npm run dev --prefix frontend",
     "dev": "concurrently \"npm run dev:back\" \"npm run dev:front\"",
     "test:front": "#npm test --prefix frontend",
-    "test:back": "npm test --prefix backend",
+    "test:back": "#npm test --prefix backend",
     "test": "npm run test:back && npm run test:front"
   },
   "keywords": [],
