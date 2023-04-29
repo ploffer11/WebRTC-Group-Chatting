@@ -11,6 +11,7 @@ import { RecoilRoot } from 'recoil';
 
 import Base from './Base.tsx';
 import Login from './pages/Login/Login.tsx';
+import Main from './pages/Main/Main.tsx';
 
 import './fonts.css';
 
@@ -29,6 +30,14 @@ const router = createBrowserRouter([
       {
         path: 'login',
         element: <Login />,
+      },
+      {
+        path: 'main',
+        loader: async () => {
+          // TODO: check login state. if not logged in, then redirect to login page
+          return null;
+        },
+        element: <Main />,
       },
     ],
   },
