@@ -35,7 +35,7 @@ export class UsersService {
   /**
    * Create a user document and returns it
    *
-   * @param createOpts ICreateUser
+   * @param createOpts include username and password
    * @returns Created user
    */
   async create(createOpts: ICreateUser): Promise<User> {

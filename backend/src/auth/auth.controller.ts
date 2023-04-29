@@ -5,7 +5,6 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { SignUpRequestDto } from './dto/users.dto';
 import { UsersService } from '../users/users.service';
-import { IUserTag } from '../../../schema/user';
 
 @Controller('auth')
 export class AuthController {
