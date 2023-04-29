@@ -1,18 +1,35 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  redirect,
+  RouterProvider,
+} from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 
-import App from './App.tsx';
+import Base from './Base.tsx';
+import Login from './pages/Login/Login.tsx';
 
-import './index.css';
 import './fonts.css';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />,
+    element: <Base />,
+    children: [
+      {
+        index: true,
+        loader: async () => {
+          // TODO: check login state
+          return redirect('login');
+        },
+      },
+      {
+        path: 'login',
+        element: <Login />,
+      },
+    ],
   },
 ]);
 
