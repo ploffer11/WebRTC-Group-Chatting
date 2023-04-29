@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import ForumRounded from '@mui/icons-material/ForumRounded';
 import Box from '@mui/material/Box';
@@ -15,6 +15,10 @@ import { useNavigate } from 'react-router-dom';
 import { login } from '../../api/api.ts';
 
 const Login = () => {
+  useEffect(() => {
+    document.title = '로그인';
+  }, []);
+
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
   // TODO: 자동 로그인 연동

@@ -1,8 +1,14 @@
+import { useEffect } from 'react';
+
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 const Main = () => {
+  useEffect(() => {
+    document.title = 'Main';
+  }, []);
+
   return (
     <Container maxWidth="sm">
       <Stack sx={{ mt: 16 }} alignItems={'center'} spacing={2}>
