@@ -1,7 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { IUserTag } from '../../../schema/user';
+import { ICreateUser, IUserTag } from '../../../schema/user';
 import { JwtService } from '@nestjs/jwt';
+import { Error } from 'mongoose';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -14,7 +20,7 @@ declare global {
 @Injectable()
 export class AuthService {
   constructor(
-    private usersSerivce: UsersService,
+    private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
@@ -22,8 +28,8 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<Express.User> {
-    const user = await this.usersSerivce.findOne({ username });
-    const saltedPassword = this.usersSerivce.saltPassword(password, user.salt);
+    const user = await this.usersService.findOne({ username });
+    const saltedPassword = this.usersService.saltPassword(password, user.salt);
 
     if (user.saltedPassword === saltedPassword) {
       return { username: user.username };
@@ -32,7 +38,26 @@ export class AuthService {
     return null;
   }
 
-  async login(user: IUserTag) {
+  async create(opts: ICreateUser) {
+    try {
+      const createdUser = await this.usersService.create(opts);
+
+      return this.login(createdUser);
+    } catch (err) {
+      const [firstError] = Object.values(err?.errors) as Error.ValidatorError[];
+
+      switch (firstError.kind) {
+        case 'unique':
+          throw new ConflictException({ cause: firstError });
+        case 'required':
+          throw new BadRequestException({ cause: firstError });
+        default:
+          throw new InternalServerErrorException({ cause: firstError });
+      }
+    }
+  }
+
+  login(user: IUserTag) {
     const payload = user;
     return {
       access_token: this.jwtService.sign(payload),
