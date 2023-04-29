@@ -1,7 +1,7 @@
 import { IsString } from 'class-validator';
 import { ICreateUser } from '@schema/user';
 
-export class CreateUserDto implements ICreateUser {
+export class SignUpRequestDto implements ICreateUser {
   @IsString()
   username: string;
 

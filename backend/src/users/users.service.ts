@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../schema/user.schema';
 import { ICreateUser } from '../../../schema/user';
@@ -35,11 +35,17 @@ export class UsersService {
   /**
    * Create a user document and returns it
    *
-   * @param createOpts Create options
+   * @param createOpts ICreateUser
    * @returns Created user
    */
   async create(createOpts: ICreateUser): Promise<User> {
     const { username, password } = createOpts;
+
+    const document = await this.findOne({ username });
+
+    if (document) {
+      throw new BadRequestException('User already exists');
+    }
 
     const salt = this.generateSalt();
     const saltedPassword = this.saltPassword(password, salt);
@@ -50,7 +56,9 @@ export class UsersService {
       salt,
     });
 
-    return await createdUser.save();
+    const savedUser = await createdUser.save();
+
+    return savedUser;
   }
 
   /**
