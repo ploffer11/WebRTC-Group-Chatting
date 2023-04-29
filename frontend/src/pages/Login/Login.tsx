@@ -10,6 +10,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import { login } from '../../api/api.ts';
 
@@ -21,6 +22,8 @@ const Login = () => {
   const [idError, setIdError] = useState<string | null>(null);
   const [pwError, setPwError] = useState<string | null>(null);
 
+  const navigate = useNavigate();
+
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
@@ -29,6 +32,7 @@ const Login = () => {
         case 201: // Create
           // TODO: save access_token and redirect
           // const access_token = data.body.access_token;
+          navigate('/main');
           break;
         case 401: // Unauthorized
           setIdError('아이디 또는 비밀번호가 일치하지 않습니다.');
