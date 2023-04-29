@@ -1,7 +1,15 @@
-interface IUser {
-  email: string;
-  hashedPassword: string;
-  salt: string;
+interface IUserTag {
+  username: string;
 }
 
-export { IUser };
+interface IUser extends IUserTag {
+  salt: string;
+  saltedPassword: string;
+}
+
+interface ICreateUser {
+  username: string;
+  password: string;
+}
+
+export { IUserTag, IUser, ICreateUser };
