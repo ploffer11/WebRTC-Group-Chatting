@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/schema/user.schema';
+import { User } from '../schema/user.schema';
 import { ICreateUser } from '../../../schema/user';
 
 @Injectable()
