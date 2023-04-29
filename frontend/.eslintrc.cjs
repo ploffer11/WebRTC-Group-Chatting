@@ -5,7 +5,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:react-hooks/recommended',
     'plugin:import/recommended',
-    'plugin:import/typescript'
+    'plugin:import/typescript',
   ],
   parserOptions: {
     ecmaVersion: 'latest',
@@ -15,9 +15,10 @@ module.exports = {
   rules: {
     'react-refresh/only-export-components': 'warn',
     'react-hooks/exhaustive-deps': [
-      'warn', {
-        'additionalHooks': '(useRecoilCallback|useRecoilTransaction_UNSTABLE)'
-      }
+      'warn',
+      {
+        additionalHooks: '(useRecoilCallback|useRecoilTransaction_UNSTABLE)',
+      },
     ],
     'import/default': 'off',
     'import/no-unresolved': 'error',
@@ -28,47 +29,52 @@ module.exports = {
       'error',
       {
         max: 2,
-        maxEOF: 0
-      }
+        maxEOF: 0,
+      },
     ],
     'import/order': [
       'error',
       {
-        groups: ["builtin", "external", "internal", ["parent", "sibling", "index"], "object", "type"],
+        groups: [
+          'builtin',
+          'external',
+          'internal',
+          ['parent', 'sibling', 'index'],
+          'object',
+          'type',
+        ],
         'newlines-between': 'always',
         pathGroups: [
           {
-            pattern: "{react-dom,react-dom/**,react}",
-            group: "external",
-            position: "before"
+            pattern: '{react-dom,react-dom/**,react}',
+            group: 'external',
+            position: 'before',
           },
           {
-            pattern: "@schema/*",
-            group: "internal",
-            position: "before"
+            pattern: '@schema/*',
+            group: 'internal',
+            position: 'before',
           },
           {
-            pattern: "*.{css,svg}",
+            pattern: '*.{css,svg}',
             patternOptions: { matchBase: true },
-            group: "type",
-            position: "after"
+            group: 'type',
+            position: 'after',
           },
         ],
         pathGroupsExcludedImportTypes: [],
-        alphabetize: { order: 'asc', caseInsensitive: true }
-      }
-    ]
+        alphabetize: { order: 'asc', caseInsensitive: true },
+      },
+    ],
   },
   settings: {
     'import/parsers': {
-      '@typescript-eslint/parser': ['.ts', '.tsx']
+      '@typescript-eslint/parser': ['.ts', '.tsx'],
     },
     'import/resolver': {
-      'typescript': {
-        "alwaysTryTypes": true,
-      }
+      typescript: {
+        alwaysTryTypes: true,
+      },
     },
-
-
-  }
+  },
 };
