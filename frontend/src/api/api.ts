@@ -8,12 +8,12 @@ async function apiFetch<T>(
   resource: Parameters<typeof fetch>[0],
   options: ApiOptions,
 ): Promise<{ status: number; body: T }> {
-  const defaultOptions = {
+  const defaultOptions: FetchOptions = {
     headers: { 'Content-Type': 'application/json' },
   };
 
-  const fetchOptions = Object.assign(defaultOptions, {
-    ...options,
+  const fetchOptions = Object.assign(defaultOptions, options, {
+    headers: Object.assign({}, defaultOptions.headers, options.headers ?? {}),
     body: JSON.stringify(options.body),
   });
 
