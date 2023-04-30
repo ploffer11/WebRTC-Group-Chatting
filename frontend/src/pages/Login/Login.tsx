@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import ForumRounded from '@mui/icons-material/ForumRounded';
 import Box from '@mui/material/Box';
@@ -13,11 +13,10 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 import { login } from '../../api/api.ts';
+import useTitle from '../../hooks/useTitle.ts';
 
 const Login = () => {
-  useEffect(() => {
-    document.title = '로그인';
-  }, []);
+  useTitle('로그인');
 
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');

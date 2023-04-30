@@ -1,13 +1,11 @@
-import { useEffect } from 'react';
-
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import useTitle from '../../hooks/useTitle.ts';
+
 const Main = () => {
-  useEffect(() => {
-    document.title = 'Main';
-  }, []);
+  useTitle('Main');
 
   return (
     <Container maxWidth="sm">
