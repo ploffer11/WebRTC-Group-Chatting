@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import { login } from '../../api/api.ts';
+import { login } from '../../api/auth.ts';
 import useTitle from '../../hooks/useTitle.ts';
 
 const Login = () => {
