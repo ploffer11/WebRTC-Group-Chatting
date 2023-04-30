@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IUser } from '@schema/user';
+import { IUser } from '@schema/auth';
 import { HydratedDocument } from 'mongoose';
 import uniqueValidator from 'mongoose-unique-validator';
 
