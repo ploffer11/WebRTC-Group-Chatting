@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { ICreateUser, IUserTag } from '../../../schema/user';
+import { ICreateUser, IUserTag } from '../../../schema/auth';
 import { JwtService } from '@nestjs/jwt';
 import { Error } from 'mongoose';
 

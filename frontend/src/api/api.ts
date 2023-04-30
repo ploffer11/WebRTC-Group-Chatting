@@ -1,3 +1,5 @@
+import { IUserCredentials, IAuthResult, ICreateUser } from '@schema/auth';
+
 // remove trailing slash from api url
 const baseUrl = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
 
@@ -23,17 +25,18 @@ async function apiFetch<T>(
   });
 }
 
-type LoginRequestParam = {
-  username: string;
-  password: string;
+export const login = (param: IUserCredentials) => {
+  return apiFetch<IAuthResult>('/auth/login', {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: param,
+  });
 };
 
-export type LoginResponse = {
-  access_token: string;
-};
-
-export const login = (param: LoginRequestParam) => {
-  return apiFetch<LoginResponse>('/auth/login', {
+export const signup = (param: ICreateUser) => {
+  return apiFetch<IAuthResult>('/auth/login', {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
