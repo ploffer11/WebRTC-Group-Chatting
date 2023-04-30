@@ -1,10 +1,8 @@
-import { IUserCredentials, IAuthResult, ICreateUser } from '@schema/auth';
-
 // remove trailing slash from api url
 const baseUrl = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
 
 type FetchOptions = Exclude<Parameters<typeof fetch>[1], undefined>;
-type ApiOptions = Omit<FetchOptions, 'body'> & { body: object };
+type ApiOptions = Omit<FetchOptions, 'body'> & { body?: object };
 
 async function apiFetch<T>(
   resource: Parameters<typeof fetch>[0],
@@ -25,22 +23,26 @@ async function apiFetch<T>(
   });
 }
 
-export const login = (param: IUserCredentials) => {
-  return apiFetch<IAuthResult>('/auth/login', {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: param,
-  });
-};
+function GetApi<ResponseType extends object>(endpoint: string) {
+  return () => apiFetch<ResponseType>(endpoint, {});
+}
 
-export const signup = (param: ICreateUser) => {
-  return apiFetch<IAuthResult>('/auth/login', {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: param,
-  });
-};
+function PostApi<RequestType extends object, ResponseType extends object>(
+  endpoint: string,
+) {
+  return (body: RequestType) =>
+    apiFetch<ResponseType>(endpoint, { method: 'POST', body });
+}
+
+function PutApi<RequestType extends object, ResponseType extends object>(
+  endpoint: string,
+) {
+  return (body: RequestType) =>
+    apiFetch<ResponseType>(endpoint, { method: 'PUT', body });
+}
+
+function DeleteApi<ResponseType extends object>(endpoint: string) {
+  return () => apiFetch<ResponseType>(endpoint, { method: 'DELETE' });
+}
+
+export { GetApi, PostApi, PutApi, DeleteApi };
