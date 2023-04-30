@@ -14,36 +14,33 @@ import { useNavigate } from 'react-router-dom';
 
 import { login } from '../../api/auth.ts';
 import useTitle from '../../hooks/useTitle.ts';
+import useAuthStore from '../../store/auth.ts';
 
 const Login = () => {
   useTitle('로그인');
 
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
-  // TODO: 자동 로그인 연동
   const [enableAutoLogin, setEnableAutoLogin] = useState(false);
   const [idError, setIdError] = useState<string | null>(null);
   const [pwError, setPwError] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const authStore = useAuthStore();
 
   const loginMutation = useMutation({
     mutationFn: login,
-    onSuccess: (data) => {
-      switch (data.status) {
-        case 200: // OK
-        case 201: // Create
-          // TODO: save access_token and redirect
-          // const access_token = data.body.access_token;
-          navigate('/main');
-          break;
-        case 401: // Unauthorized
-          setIdError('아이디 또는 비밀번호가 일치하지 않습니다.');
-          setPwError('아이디 또는 비밀번호가 일치하지 않습니다.');
-          break;
-        default: // Something else...
-          // TODO: other error handling
-          break;
+    onSuccess: (result) => {
+      if (result.good()) {
+        // HTTP 200
+        navigate('/main');
+        authStore.setAccessToken(result.body.access_token, enableAutoLogin);
+      } else if (result.unauthorized()) {
+        // HTTP 401
+        setIdError('아이디 또는 비밀번호가 일치하지 않습니다.');
+        setPwError('아이디 또는 비밀번호가 일치하지 않습니다.');
+      } else {
+        // TODO: other error handling
       }
     },
     onError: () => {
