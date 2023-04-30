@@ -1,14 +1,16 @@
 import React, { useCallback, useState } from 'react';
 
 import ForumRounded from '@mui/icons-material/ForumRounded';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import Container from '@mui/material/Container';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  FormControlLabel,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
