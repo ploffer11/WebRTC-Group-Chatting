@@ -5,7 +5,7 @@ const baseUrl = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
 
 type FetchOptions = Exclude<Parameters<typeof fetch>[1], undefined>;
 type ApiOptions = Omit<FetchOptions, 'body'> & { body?: object };
-class ApiFetchResult<T> {
+class ApiFetchResponse<T> {
   constructor(public status: number, public body: T) {}
 
   good() {
@@ -26,7 +26,7 @@ class ApiFetchResult<T> {
 async function apiFetch<T>(
   resource: Parameters<typeof fetch>[0],
   options: ApiOptions,
-): Promise<ApiFetchResult<T>> {
+): Promise<ApiFetchResponse<T>> {
   const defaultOptions: FetchOptions = {
     headers: {
       Authorization: `Bearer ${useAuthStore.getState().access_token}`,
@@ -41,7 +41,7 @@ async function apiFetch<T>(
 
   return fetch(`${baseUrl}${resource}`, fetchOptions).then(async (res) => {
     const json = (await res.json()) as T;
-    return new ApiFetchResult<T>(res.status, json);
+    return new ApiFetchResponse<T>(res.status, json);
   });
 }
 
