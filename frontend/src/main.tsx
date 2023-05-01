@@ -9,7 +9,6 @@ import {
   Route,
   RouterProvider,
 } from 'react-router-dom';
-import { RecoilRoot } from 'recoil';
 
 import Base from './Base.tsx';
 import Login from './pages/Login/Login.tsx';
@@ -58,10 +57,8 @@ const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <RecoilRoot>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </RecoilRoot>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   </React.StrictMode>,
 );
