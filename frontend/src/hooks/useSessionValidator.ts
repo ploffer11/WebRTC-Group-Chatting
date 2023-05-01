@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
+import { profile } from '../api/auth';
 import useAuthStore from '../store/auth';
 
 /**
@@ -15,8 +16,12 @@ export default function useSessionValidator() {
     if (authStore.access_token === '') {
       navigate('/login');
     } else {
-      authStore.validate().catch(() => {
-        navigate('/login');
+      // Validate session by fetching user profile
+      profile().then((resp) => {
+        if (!resp.good()) {
+          authStore.invalidateSession();
+          navigate('/login');
+        }
       });
     }
   }, [navigate, authStore]);

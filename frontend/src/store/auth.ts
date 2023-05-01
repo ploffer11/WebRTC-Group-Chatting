@@ -2,8 +2,6 @@ import { create } from 'zustand';
 
 import { IAuthResult } from '@schema/auth';
 
-import { profile } from '../api/auth';
-
 interface AuthStore extends IAuthResult {
   /**
    * Save the access token.
@@ -14,7 +12,7 @@ interface AuthStore extends IAuthResult {
    * @param persist `true` if auto login is enabled.
    */
   setAccessToken: (grantedToken: string, persist: boolean) => void;
-  validate: () => Promise<boolean>;
+  invalidateSession: () => void;
 }
 
 const useAuthStore = create<AuthStore>((set) => ({
@@ -35,24 +33,7 @@ const useAuthStore = create<AuthStore>((set) => ({
     }
   },
 
-  /**
-   * Validate session and clears access token if invalid.
-   *
-   * @returns true if valid session
-   */
-  validate: async () => {
-    // GET /auth/profile to check if this access token is valid
-    // Every api call uses access token of this store, so this request can validate token enough.
-
-    const validateResult = await profile();
-
-    if (validateResult.status >= 300 || !validateResult.body.username) {
-      set({ access_token: '' });
-      throw new Error('User validation failed');
-    }
-
-    return true;
-  },
+  invalidateSession: () => set({ access_token: '' }),
 }));
 
 export default useAuthStore;
