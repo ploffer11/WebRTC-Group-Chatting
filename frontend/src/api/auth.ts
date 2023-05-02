@@ -5,10 +5,16 @@ import {
   IUserTag,
 } from '@schema/auth';
 
-import { GetApi, PostApi } from './api';
+import { ApiRequest } from './api';
 
-export const login = PostApi<IUserCredentials, IAuthResult>('/auth/login', {});
-export const signup = PostApi<ICreateUser, IAuthResult>('/auth/signup', {});
+export const login = new ApiRequest<IUserCredentials, IAuthResult>(
+  '/auth/login',
+).post();
+export const signup = new ApiRequest<ICreateUser, IAuthResult>(
+  '/auth/signup',
+).post();
 
 // TODO: should replace this IUserTag with proper type
-export const profile = GetApi<IUserTag>('/auth/profile', {});
+export const profile = new ApiRequest<never, IUserTag>('/auth/profile')
+  .requiresAuth()
+  .get();
