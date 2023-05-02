@@ -5,15 +5,15 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { ICreateUser, IUserTag } from '../../../schema/auth';
+import { ICreateUser, IUserTag } from '@schema/auth';
 import { JwtService } from '@nestjs/jwt';
 import { Error } from 'mongoose';
+import type { JwtPayload } from 'jsonwebtoken';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface User extends IUserTag {}
+    interface User extends IUserTag, JwtPayload {}
   }
 }
 
