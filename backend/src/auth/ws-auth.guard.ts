@@ -7,11 +7,11 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 import {
-  ClientToServerEvents,
-  InterServerEvents,
-  ServerToClientEvents,
-  SocketData,
-} from '../../../schema/ws';
+  IClientToServerEvents,
+  IInterServerEvents,
+  IServerToClientEvents,
+  ISocketData,
+} from '@schema/ws';
 
 @Injectable()
 export class WsAuthGuard implements CanActivate {
@@ -22,10 +22,10 @@ export class WsAuthGuard implements CanActivate {
       .switchToWs()
       .getClient<
         Socket<
-          ClientToServerEvents,
-          ServerToClientEvents,
-          InterServerEvents,
-          SocketData
+          IClientToServerEvents,
+          IServerToClientEvents,
+          IInterServerEvents,
+          ISocketData
         >
       >();
     const token = client.handshake.headers.authorization.split(' ')[1];
