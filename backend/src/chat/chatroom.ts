@@ -30,7 +30,6 @@ export class Chatroom {
     const { username } = client.data.user;
 
     this.userIds.add(username);
-    client.join(this.roomName);
 
     return true;
   }
@@ -39,5 +38,6 @@ export class Chatroom {
     const { username } = client.data.user;
 
     this.userIds.delete(username);
+    return true;
   }
 }

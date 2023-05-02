@@ -53,6 +53,7 @@ export class ChatGateway
 
   afterInit() {
     console.log('Gateway initialized');
+    this.chatService.server = this.server;
   }
 
   handleConnection(@ConnectedSocket() client: WebSocketType) {
@@ -64,46 +65,28 @@ export class ChatGateway
     @ConnectedSocket() client: WebSocketType,
     @MessageBody(new ValidationPipe()) { roomId }: ChatroomEnterDto,
   ) {
-    const { user } = client.data;
-
-    if (this.chatService.enter(roomId, client)) {
-      this.server.emit('enter', {
-        roomId,
-        user,
-      });
-    }
+    this.chatService.enter(roomId, client);
   }
 
   @SubscribeMessage('chat')
   handleChat(
     @ConnectedSocket() client: WebSocketType,
-    @MessageBody(new ValidationPipe())
+    @MessageBody()
     { chatText }: ChatroomChatDto,
   ) {
-    const [roomId] = client.rooms;
-    const { user } = client.data;
-
-    console.log(roomId, user, chatText);
-
-    this.server.to(roomId).emit('chat', {
-      user,
-      chatText,
-    });
+    this.chatService.chat(chatText, client);
   }
 
   @SubscribeMessage('leave')
   handleLeave(
     @ConnectedSocket() client: WebSocketType,
-    @MessageBody(new ValidationPipe())
+    @MessageBody()
     { roomId }: ChatroomLeaveDto,
   ) {
     this.chatService.leave(roomId, client);
   }
 
   handleDisconnect(@ConnectedSocket() client: WebSocketType) {
-    console.log('disconnect:', client.id);
-    client.rooms.forEach((roomId) => {
-      this.chatService.leave(roomId, client);
-    });
+    this.chatService.leaveAll(client);
   }
 }
