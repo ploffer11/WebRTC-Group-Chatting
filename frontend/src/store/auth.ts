@@ -11,8 +11,7 @@ interface AuthStore extends IAuthResult {
    * @param grantedToken access token granted
    * @param persist `true` if auto login is enabled.
    */
-  setAccessToken: (grantedToken: string, persist: boolean) => void;
-  invalidateSession: () => void;
+  setAccessToken: (grantedToken: string, persist: boolean) => void;\
 }
 
 const useAuthStore = create<AuthStore>((set) => ({
@@ -32,8 +31,6 @@ const useAuthStore = create<AuthStore>((set) => ({
       localStorage.removeItem('access_token');
     }
   },
-
-  invalidateSession: () => set({ access_token: '' }),
 }));
 
 export default useAuthStore;

@@ -4,9 +4,15 @@ import useAuthStore from '../store/auth';
 const baseUrl = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
 
 type FetchOptions = Exclude<Parameters<typeof fetch>[1], undefined>;
-type ApiOptions = Omit<FetchOptions, 'body'> & { body?: object };
+type ApiOptions = Omit<FetchOptions, 'headers'> & {
+  headers: Record<string, string>;
+};
 class ApiFetchResponse<T> {
-  constructor(public status: number, public body: T) {}
+  constructor(public status: number, public body?: T) {
+    if (status === 401) {
+      useAuthStore.setState({ access_token: '' });
+    }
+  }
 
   good() {
     return 200 <= this.status && this.status < 300;
@@ -23,57 +29,85 @@ class ApiFetchResponse<T> {
   }
 }
 
-async function apiFetch<T>(
-  resource: Parameters<typeof fetch>[0],
-  options: ApiOptions,
-): Promise<ApiFetchResponse<T>> {
-  const defaultOptions: FetchOptions = {
-    headers: {
-      Authorization: `Bearer ${useAuthStore.getState().access_token}`,
-      'Content-Type': 'application/json',
-    },
+class ApiRequest<BodyType extends object, ResponseType> {
+  options: ApiOptions = {
+    headers: {},
   };
 
-  const fetchOptions = Object.assign(defaultOptions, options, {
-    headers: Object.assign({}, defaultOptions.headers, options.headers ?? {}),
-    body: JSON.stringify(options.body),
-  });
+  private _requiresAuth = false;
 
-  return fetch(`${baseUrl}${resource}`, fetchOptions).then(async (res) => {
-    const json = (await res.json()) as T;
-    return new ApiFetchResponse<T>(res.status, json);
-  });
+  constructor(
+    public resource: Parameters<typeof fetch>[0],
+    options?: ApiOptions,
+  ) {
+    Object.assign(this.options, options);
+  }
+
+  method(httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE') {
+    this.options.method = httpMethod;
+    return this;
+  }
+
+  requiresAuth() {
+    this._requiresAuth = true;
+    return this;
+  }
+
+  async send(body?: object) {
+    if (this._requiresAuth) {
+      const accessToken = useAuthStore.getState().access_token;
+      if (!accessToken) {
+        return new ApiFetchResponse<never>(401);
+      }
+
+      this.options.headers['Authorization'] = `Bearer ${
+        useAuthStore.getState().access_token
+      }`;
+    }
+
+    if (body) {
+      this.options.headers['Content-Type'] =
+        this.options.headers['Content-Type'] ?? 'application/json';
+      this.options.body = this.options.body ?? JSON.stringify(body);
+    }
+
+    const res = await fetch(`${baseUrl}${this.resource}`, this.options);
+    const json = (await res.json()) as ResponseType;
+
+    return new ApiFetchResponse<ResponseType>(res.status, json);
+  }
+
+  build() {
+    return (body?: BodyType) => this.send(body);
+  }
 }
 
-function GetApi<ResponseType extends object>(
-  endpoint: string,
-  options: ApiOptions,
-) {
-  return () => apiFetch<ResponseType>(endpoint, { method: 'GET', ...options });
+function GetApi<ResponseType>(endpoint: string, options?: ApiOptions) {
+  return new ApiRequest<never, ResponseType>(endpoint, options).method('GET');
 }
 
-function PostApi<RequestType extends object, ResponseType extends object>(
+function PostApi<RequestType extends object, ResponseType>(
   endpoint: string,
-  options: ApiOptions,
+  options?: ApiOptions,
 ) {
-  return (body: RequestType) =>
-    apiFetch<ResponseType>(endpoint, { method: 'POST', body, ...options });
+  return new ApiRequest<RequestType, ResponseType>(endpoint, options).method(
+    'POST',
+  );
 }
 
-function PutApi<RequestType extends object, ResponseType extends object>(
+function PutApi<RequestType extends object, ResponseType>(
   endpoint: string,
-  options: ApiOptions,
+  options?: ApiOptions,
 ) {
-  return (body: RequestType) =>
-    apiFetch<ResponseType>(endpoint, { method: 'PUT', body, ...options });
+  return new ApiRequest<RequestType, ResponseType>(endpoint, options).method(
+    'PUT',
+  );
 }
 
-function DeleteApi<ResponseType extends object>(
-  endpoint: string,
-  options: ApiOptions,
-) {
-  return () =>
-    apiFetch<ResponseType>(endpoint, { method: 'DELETE', ...options });
+function DeleteApi<ResponseType>(endpoint: string, options?: ApiOptions) {
+  return new ApiRequest<never, ResponseType>(endpoint, options).method(
+    'DELETE',
+  );
 }
 
 export { GetApi, PostApi, PutApi, DeleteApi };
