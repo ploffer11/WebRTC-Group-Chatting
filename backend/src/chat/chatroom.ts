@@ -1,50 +1,43 @@
-import { WebSocketServerType, WebSocketType } from './chat.types';
+import { WebSocketType } from './chat.types';
 
 export class Chatroom {
-  server: WebSocketServerType;
-
-  roomId: string;
-  roomName: string;
-
   userIds: string[] = [];
   maxCapacity = 6;
 
-  constructor(roomId: string, server: WebSocketServerType) {
-    this.server = server;
-    this.roomId = roomId;
-    this.roomName = `room-${roomId}`;
+  get usersCount() {
+    return this.userIds.length;
   }
 
-  enter(userId: string, userName: string, client: WebSocketType): boolean {
-    if (this.userIds.length >= this.maxCapacity) return false;
+  constructor(
+    public roomId: string,
+    public roomName: string = `room-${roomId}`,
+  ) {}
 
-    this.userIds.push(userId);
-    client.join(this.roomName);
-    this.server.to(this.roomName).emit('enter', {
-      userId,
-      userName,
-      message: `${userName}님이 입장했습니다.`,
-    });
+  canAccept(client: WebSocketType) {
+    const { username } = client.data.user;
+
+    if (this.usersCount >= this.maxCapacity) return false;
+    if (this.userIds.includes(username)) {
+      // TODO: uncomment this line
+      // return false;
+      return true;
+    }
 
     return true;
   }
 
-  chat(userId: string, userName: string, message: string) {
-    this.server.to(this.roomName).emit('chat', {
-      userId,
-      userName,
-      message,
-    });
+  enter(client: WebSocketType): boolean {
+    const { username } = client.data.user;
+
+    this.userIds.push(username);
+    client.join(this.roomName);
+
+    return true;
   }
 
-  leave(userId: string, userName: string) {
-    if (!this.userIds.includes(userId)) return false;
+  leave(client: WebSocketType) {
+    const { username } = client.data.user;
 
-    this.userIds.splice(this.userIds.indexOf(userId), 1);
-    this.server.to(this.roomName).emit('leave', {
-      userId,
-      userName,
-      message: `${userName}님이 퇴장했습니다.`,
-    });
+    this.userIds.splice(this.userIds.indexOf(username), 1);
   }
 }
