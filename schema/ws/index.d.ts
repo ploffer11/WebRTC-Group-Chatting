@@ -1,10 +1,9 @@
 import { IUserTag } from '../auth';
 
-interface ISocketData {
-  user: IUserTag;
+export interface IWebsocketUser extends IUserTag {}
+export interface ISocketData {
+  user: IWebsocketUser;
 }
-
-export { ISocketData };
 
 export * from './s2c';
 export * from './c2s';
