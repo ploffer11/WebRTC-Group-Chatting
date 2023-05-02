@@ -11,7 +11,7 @@ import {
 
 import { UseGuards } from '@nestjs/common';
 import { WsAuthGuard } from '../auth/ws-auth.guard';
-import { WebSocketServerType, WebSocketType } from './text.types';
+import { WebSocketServerType, WebSocketType } from './chat.types';
 
 /**
  * Server - Client Socket API
@@ -86,7 +86,7 @@ class Chatroom {
   },
 })
 @UseGuards(WsAuthGuard)
-export class TextGateway
+export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()

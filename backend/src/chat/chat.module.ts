@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { TextService } from './text.service';
-import { TextController } from './text.controller';
-import { TextGateway } from './text.gateway';
+import { ChatService } from './chat.service';
+import { ChatController } from './chat.controller';
+import { ChatGateway } from './chat.gateway';
 import { AuthModule } from '../auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -17,7 +17,7 @@ import { ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
   ],
-  controllers: [TextController],
-  providers: [TextService, TextGateway],
+  controllers: [ChatController],
+  providers: [ChatService, ChatGateway],
 })
-export class TextModule {}
+export class ChatModule {}

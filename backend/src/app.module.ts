@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { TextModule } from './text/text.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { TextModule } from './text/text.module';
     MongooseModule.forRoot(process.env.DB_HOST),
     UsersModule,
     AuthModule,
-    TextModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
