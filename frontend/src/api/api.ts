@@ -4,7 +4,9 @@ import useAuthStore from '../store/auth';
 const baseUrl = import.meta.env.VITE_API_URL.replace(/\/+$/, '');
 
 type FetchOptions = Exclude<Parameters<typeof fetch>[1], undefined>;
-type ApiOptions = Omit<FetchOptions, 'body'> & { body?: object };
+type ApiOptions = Omit<FetchOptions, 'headers'> & {
+  headers: Record<string, string>;
+};
 class ApiFetchResponse<T> {
   constructor(public status: number, public body: T) {}
 
@@ -23,57 +25,68 @@ class ApiFetchResponse<T> {
   }
 }
 
-async function apiFetch<T>(
-  resource: Parameters<typeof fetch>[0],
-  options: ApiOptions,
-): Promise<ApiFetchResponse<T>> {
-  const defaultOptions: FetchOptions = {
-    headers: {
-      Authorization: `Bearer ${useAuthStore.getState().access_token}`,
-      'Content-Type': 'application/json',
-    },
+class ApiRequest<BodyType extends object, ResponseType> {
+  options: ApiOptions = {
+    headers: {},
   };
 
-  const fetchOptions = Object.assign(defaultOptions, options, {
-    headers: Object.assign({}, defaultOptions.headers, options.headers ?? {}),
-    body: JSON.stringify(options.body),
-  });
+  private _requiresAuth = false;
 
-  return fetch(`${baseUrl}${resource}`, fetchOptions).then(async (res) => {
-    const json = (await res.json()) as T;
-    return new ApiFetchResponse<T>(res.status, json);
-  });
+  constructor(
+    public resource: Parameters<typeof fetch>[0],
+    options?: ApiOptions,
+  ) {
+    Object.assign(this.options, options);
+  }
+
+  method(httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE') {
+    this.options.method = httpMethod;
+    return this;
+  }
+
+  requiresAuth() {
+    this._requiresAuth = true;
+    return this;
+  }
+
+  private async send(body?: object) {
+    if (this._requiresAuth) {
+      this.options.headers['Authorization'] = `Bearer ${
+        useAuthStore.getState().access_token
+      }`;
+    }
+
+    if (body) {
+      this.options.headers['Content-Type'] =
+        this.options.headers['Content-Type'] ?? 'application/json';
+      this.options.body = this.options.body ?? JSON.stringify(body);
+    }
+
+    const res = await fetch(`${baseUrl}${this.resource}`, this.options);
+    const json = (await res.json()) as ResponseType;
+
+    return new ApiFetchResponse<ResponseType>(res.status, json);
+  }
+
+  get() {
+    this.method('GET');
+    return () => this.send();
+  }
+
+  post() {
+    this.method('POST');
+    return (body: BodyType) => this.send(body);
+  }
+
+  put() {
+    this.method('PUT');
+    return (body: BodyType) => this.send(body);
+  }
+
+  delete() {
+    this.method('DELETE');
+    return () => this.send();
+  }
 }
 
-function GetApi<ResponseType extends object>(
-  endpoint: string,
-  options: ApiOptions,
-) {
-  return () => apiFetch<ResponseType>(endpoint, { method: 'GET', ...options });
-}
-
-function PostApi<RequestType extends object, ResponseType extends object>(
-  endpoint: string,
-  options: ApiOptions,
-) {
-  return (body: RequestType) =>
-    apiFetch<ResponseType>(endpoint, { method: 'POST', body, ...options });
-}
-
-function PutApi<RequestType extends object, ResponseType extends object>(
-  endpoint: string,
-  options: ApiOptions,
-) {
-  return (body: RequestType) =>
-    apiFetch<ResponseType>(endpoint, { method: 'PUT', body, ...options });
-}
-
-function DeleteApi<ResponseType extends object>(
-  endpoint: string,
-  options: ApiOptions,
-) {
-  return () =>
-    apiFetch<ResponseType>(endpoint, { method: 'DELETE', ...options });
-}
-
-export { GetApi, PostApi, PutApi, DeleteApi };
+export { ApiRequest };
