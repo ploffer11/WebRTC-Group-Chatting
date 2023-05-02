@@ -37,7 +37,7 @@ class Chatroom {
   roomId: string;
   roomName: string;
 
-  userIds: string[];
+  userIds: string[] = [];
   maxCapacity = 6;
 
   constructor(roomId: string, server: Server) {
