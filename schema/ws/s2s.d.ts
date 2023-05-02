@@ -1,0 +1,3 @@
+interface IInterServerEvents {}
+
+export { IInterServerEvents };

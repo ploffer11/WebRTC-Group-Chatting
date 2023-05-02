@@ -1,23 +1,23 @@
 import { Server, Socket } from 'socket.io';
 import {
-  ClientToServerEvents,
-  InterServerEvents,
-  ServerToClientEvents,
-  SocketData,
-} from '../../../schema/ws';
+  IClientToServerEvents,
+  IInterServerEvents,
+  IServerToClientEvents,
+  ISocketData,
+} from '@schema/ws';
 
 type WebSocketServerType = Server<
-  ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents,
-  SocketData
+  IClientToServerEvents,
+  IServerToClientEvents,
+  IInterServerEvents,
+  ISocketData
 >;
 
 type WebSocketType = Socket<
-  ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents,
-  SocketData
+  IClientToServerEvents,
+  IServerToClientEvents,
+  IInterServerEvents,
+  ISocketData
 >;
 
 export { WebSocketServerType, WebSocketType };

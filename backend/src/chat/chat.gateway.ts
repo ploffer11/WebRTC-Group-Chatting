@@ -9,10 +9,15 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, ValidationPipe } from '@nestjs/common';
 import { WsAuthGuard } from '../auth/ws-auth.guard';
 import { WebSocketServerType, WebSocketType } from './chat.types';
 import { ChatService } from './chat.service';
+import {
+  ChatroomEnterDto,
+  ChatroomLeaveDto,
+  ChatroomChatDto,
+} from './dto/chat.dto';
 
 /**
  * Server - Client Socket API
@@ -57,14 +62,14 @@ export class ChatGateway
   @SubscribeMessage('enter')
   handleEnter(
     @ConnectedSocket() client: WebSocketType,
-    @MessageBody() { roomId },
+    @MessageBody(new ValidationPipe()) { roomId }: ChatroomEnterDto,
   ) {
-    const { username } = client.data.user;
+    const { user } = client.data;
 
     if (this.chatService.enter(roomId, client)) {
       this.server.emit('enter', {
-        username,
-        message: `enter ${username}`,
+        roomId,
+        user,
       });
     }
   }
@@ -72,22 +77,25 @@ export class ChatGateway
   @SubscribeMessage('chat')
   handleChat(
     @ConnectedSocket() client: WebSocketType,
-    @MessageBody()
-    { roomId, message },
+    @MessageBody(new ValidationPipe())
+    { chatText }: ChatroomChatDto,
   ) {
-    console.log(roomId, message);
-    const { username } = client.data.user;
+    const [roomId] = client.rooms;
+    const { user } = client.data;
+
+    console.log(roomId, user, chatText);
+
     this.server.to(roomId).emit('chat', {
-      username,
-      message,
+      user,
+      chatText,
     });
   }
 
   @SubscribeMessage('leave')
   handleLeave(
     @ConnectedSocket() client: WebSocketType,
-    @MessageBody()
-    { roomId }: { roomId: string },
+    @MessageBody(new ValidationPipe())
+    { roomId }: ChatroomLeaveDto,
   ) {
     this.chatService.leave(roomId, client);
   }
