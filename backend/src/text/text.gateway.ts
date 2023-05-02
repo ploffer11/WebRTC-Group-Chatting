@@ -9,9 +9,9 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
 import { WsAuthGuard } from '../auth/ws-auth.guard';
+import { WebSocketServerType, WebSocketType } from './text.types';
 
 /**
  * Server - Client Socket API
@@ -32,7 +32,7 @@ import { WsAuthGuard } from '../auth/ws-auth.guard';
  */
 
 class Chatroom {
-  server: Server;
+  server: WebSocketServerType;
 
   roomId: string;
   roomName: string;
@@ -40,13 +40,13 @@ class Chatroom {
   userIds: string[] = [];
   maxCapacity = 6;
 
-  constructor(roomId: string, server: Server) {
+  constructor(roomId: string, server: WebSocketServerType) {
     this.server = server;
     this.roomId = roomId;
     this.roomName = `room-${roomId}`;
   }
 
-  enter(userId: string, userName: string, client: Socket): boolean {
+  enter(userId: string, userName: string, client: WebSocketType): boolean {
     if (this.userIds.length >= this.maxCapacity) return false;
 
     this.userIds.push(userId);
@@ -90,7 +90,7 @@ export class TextGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  server: Server;
+  server: WebSocketServerType;
 
   madeChatroom: Map<string, Chatroom> = new Map<string, Chatroom>();
 
@@ -100,15 +100,18 @@ export class TextGateway
     console.log('Gateway initialized');
   }
 
-  handleConnection(@ConnectedSocket() client: Socket) {
+  handleConnection(@ConnectedSocket() client: WebSocketType) {
     console.log('connect:', client.id);
   }
 
   @SubscribeMessage('enter')
   handleEnter(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() { roomId }: { roomId: string },
+    @ConnectedSocket() client: WebSocketType,
+    @MessageBody() { roomId },
   ) {
+    client.on('enter', (opts) => {
+      opts;
+    });
     const { userId, userName } = client.data;
     const chatroom: Chatroom =
       this.madeChatroom.get(roomId) ?? new Chatroom(roomId, this.server);
@@ -118,7 +121,7 @@ export class TextGateway
 
   @SubscribeMessage('chat')
   handleChat(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: WebSocketType,
     @MessageBody()
     {
       roomId,
@@ -135,7 +138,7 @@ export class TextGateway
 
   @SubscribeMessage('leave')
   handleLeave(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: WebSocketType,
     @MessageBody()
     { roomId }: { roomId: string },
   ) {
@@ -144,7 +147,7 @@ export class TextGateway
     chatroom?.leave(userId, userName);
   }
 
-  handleDisconnect(@ConnectedSocket() client: Socket) {
+  handleDisconnect(@ConnectedSocket() client: WebSocketType) {
     console.log('disconnect:', client.id);
     const { userId, userName } = client.data;
     [...this.madeChatroom.values()].forEach((chatroom) => {
