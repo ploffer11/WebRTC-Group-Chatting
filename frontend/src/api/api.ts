@@ -90,3 +90,5 @@ class ApiRequest<BodyType extends object, ResponseType> {
 }
 
 export { ApiRequest };
+
+export { ApiFetchResponse };
