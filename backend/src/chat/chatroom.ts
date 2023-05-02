@@ -1,11 +1,11 @@
 import { WebSocketType } from './chat.types';
 
 export class Chatroom {
-  userIds: string[] = [];
+  userIds: Set<string> = new Set();
   maxCapacity = 6;
 
   get usersCount() {
-    return this.userIds.length;
+    return this.userIds.size;
   }
 
   constructor(
@@ -17,7 +17,7 @@ export class Chatroom {
     const { username } = client.data.user;
 
     if (this.usersCount >= this.maxCapacity) return false;
-    if (this.userIds.includes(username)) {
+    if (this.userIds.has(username)) {
       // TODO: uncomment this line
       // return false;
       return true;
@@ -29,7 +29,7 @@ export class Chatroom {
   enter(client: WebSocketType): boolean {
     const { username } = client.data.user;
 
-    this.userIds.push(username);
+    this.userIds.add(username);
     client.join(this.roomName);
 
     return true;
@@ -38,6 +38,6 @@ export class Chatroom {
   leave(client: WebSocketType) {
     const { username } = client.data.user;
 
-    this.userIds.splice(this.userIds.indexOf(username), 1);
+    this.userIds.delete(username);
   }
 }
