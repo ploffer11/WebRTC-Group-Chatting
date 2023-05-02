@@ -31,7 +31,9 @@ export class WsAuthGuard implements CanActivate {
     const token = client.handshake.headers.authorization.split(' ')[1];
     try {
       const payload = this.jwtService.verify<Express.User>(token);
-      Object.assign(client.data, payload);
+      client.data = {
+        user: { ...payload },
+      };
       console.log(payload);
       return true;
     } catch (e) {

@@ -12,7 +12,7 @@ import {
 import { UseGuards } from '@nestjs/common';
 import { WsAuthGuard } from '../auth/ws-auth.guard';
 import { WebSocketServerType, WebSocketType } from './chat.types';
-import { Chatroom } from './chatroom';
+import { ChatService } from './chat.service';
 
 /**
  * Server - Client Socket API
@@ -44,9 +44,7 @@ export class ChatGateway
   @WebSocketServer()
   server: WebSocketServerType;
 
-  madeChatroom: Map<string, Chatroom> = new Map<string, Chatroom>();
-
-  userIdx = 0;
+  constructor(public chatService: ChatService) {}
 
   afterInit() {
     console.log('Gateway initialized');
@@ -61,31 +59,28 @@ export class ChatGateway
     @ConnectedSocket() client: WebSocketType,
     @MessageBody() { roomId },
   ) {
-    client.on('enter', (opts) => {
-      opts;
-    });
-    const { userId, userName } = client.data;
-    const chatroom: Chatroom =
-      this.madeChatroom.get(roomId) ?? new Chatroom(roomId, this.server);
-    this.madeChatroom.set(roomId, chatroom);
-    chatroom.enter(userId, userName, client);
+    const { username } = client.data.user;
+
+    if (this.chatService.enter(roomId, client)) {
+      this.server.emit('enter', {
+        username,
+        message: `enter ${username}`,
+      });
+    }
   }
 
   @SubscribeMessage('chat')
   handleChat(
     @ConnectedSocket() client: WebSocketType,
     @MessageBody()
-    {
-      roomId,
-      message,
-    }: {
-      roomId: string;
-      message: string;
-    },
+    { roomId, message },
   ) {
-    const { userId, userName } = client.data;
-    const chatroom = this.madeChatroom.get(roomId);
-    chatroom?.chat(userId, userName, message);
+    console.log(roomId, message);
+    const { username } = client.data.user;
+    this.server.to(roomId).emit('chat', {
+      username,
+      message,
+    });
   }
 
   @SubscribeMessage('leave')
@@ -94,16 +89,13 @@ export class ChatGateway
     @MessageBody()
     { roomId }: { roomId: string },
   ) {
-    const { userId, userName } = client.data;
-    const chatroom = this.madeChatroom.get(roomId);
-    chatroom?.leave(userId, userName);
+    this.chatService.leave(roomId, client);
   }
 
   handleDisconnect(@ConnectedSocket() client: WebSocketType) {
     console.log('disconnect:', client.id);
-    const { userId, userName } = client.data;
-    [...this.madeChatroom.values()].forEach((chatroom) => {
-      chatroom.leave(userId, userName);
+    client.rooms.forEach((roomId) => {
+      this.chatService.leave(roomId, client);
     });
   }
 }

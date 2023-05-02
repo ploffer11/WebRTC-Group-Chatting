@@ -1,20 +1,20 @@
 import { IUserTag } from './auth';
 
 interface ServerToClientEvents {
-  enter: (opts: { userId: string; userName: string; message: string }) => void;
-  chat: (opts: { userId: string; userName: string; message: string }) => void;
-  leave: (opts: { userId: string; userName: string; message: string }) => void;
+  enter: (opts: { username: string; message: string }) => void;
+  chat: (opts: { username: string; message: string }) => void;
+  leave: (opts: { username: string; message: string }) => void;
 }
 
 interface ClientToServerEvents {
   enter: (opts: {}) => void;
+  chat: (opts: { roomId: string; message: string }) => void;
 }
 
 interface InterServerEvents {}
 
 interface SocketData {
-  userId: string;
-  userName: string;
+  user: IUserTag;
 }
 
 export {
