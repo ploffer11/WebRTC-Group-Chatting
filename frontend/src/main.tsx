@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createBrowserRouter,
@@ -30,24 +31,17 @@ const simpleSessionValidator = (shouldBeLogin: boolean) => async () => {
   return null;
 };
 
-/**
- * index에서 /main으로 redirect 하는 이유:
- * /main으로 rediect 한 다음 => /main에서 다시 한 번 redirection 과정을 거칠 것이기 때문.
- * index만을 위해서 별도의 콜백을 만들어 주는 것보다는 이쪽이 더 예뻐보임.
- */
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path={'/'} element={<Base />}>
-      <Route index loader={() => redirect('/main')} />
-      <Route
-        path={'login'}
-        element={<Login />}
-        loader={simpleSessionValidator(false)}
-      />
+      <Route index loader={simpleSessionValidator(true)} />
+      <Route path={'login'} element={<Login />} />
+      <Route path={'signup'} element={<Login />} />
       <Route
         path={'main'}
         element={<Main />}
         loader={simpleSessionValidator(true)}
+        handle={{ requireAuth: true }}
       />
     </Route>,
   ),
@@ -55,10 +49,20 @@ const router = createBrowserRouter(
 
 const queryClient = new QueryClient();
 
+// theme 선언을 따로 분리하는 게 깔끔할 수도?
+const theme = createTheme({
+  typography: {
+    fontFamily: ['roboto', '"Noto Sans KR"', 'Arial', 'sans-serif'].join(','),
+  },
+});
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>,
 );

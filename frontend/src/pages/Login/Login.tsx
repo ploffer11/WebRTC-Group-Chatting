@@ -11,7 +11,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 import { login } from '../../api/auth.ts';
@@ -29,14 +29,18 @@ const Login = () => {
 
   const navigate = useNavigate();
   const authStore = useAuthStore();
+  const queryClient = useQueryClient();
 
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (result) => {
       if (result.good()) {
         // HTTP 200
-        navigate('/main');
         authStore.setAccessToken(result.body.access_token, enableAutoLogin);
+
+        queryClient.invalidateQueries({ queryKey: ['profile'] }).then(() => {
+          navigate('/main');
+        });
       } else if (result.unauthorized()) {
         // HTTP 401
         setIdError('아이디 또는 비밀번호가 일치하지 않습니다.');

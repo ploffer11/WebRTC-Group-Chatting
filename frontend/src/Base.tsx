@@ -1,18 +1,17 @@
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 
-const theme = createTheme({
-  typography: {
-    fontFamily: ['roboto', '"Noto Sans KR"', 'Arial', 'sans-serif'].join(','),
-  },
-});
+import AuthorizationGuard from './components/AuthorizationGuard.tsx';
+import ErrorMessage from './components/ErrorMessage.tsx';
+import Loading from './components/Loading.tsx';
 
 const Base = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <AuthorizationGuard
+      loadingFallback={<Loading />}
+      errorFallback={<ErrorMessage />}
+    >
       <Outlet />
-    </ThemeProvider>
+    </AuthorizationGuard>
   );
 };
 
