@@ -19,6 +19,10 @@ export class ChatService {
   enter(roomId: string, client: WebSocketType) {
     const chatRoom = this.find(roomId) ?? this.create(roomId);
 
+    if (client.rooms.size !== 0) {
+      return false;
+    }
+
     if (!chatRoom.canAccept(client)) {
       return false;
     }
