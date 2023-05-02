@@ -1,11 +1,9 @@
 import { Container, Stack, Typography } from '@mui/material';
 
-import useSessionValidator from '../../hooks/useSessionValidator.ts';
 import useTitle from '../../hooks/useTitle.ts';
 
 const Main = () => {
   useTitle('Main');
-  useSessionValidator();
 
   return (
     <Container maxWidth="sm">
