@@ -52,7 +52,7 @@ module.exports = {
             position: 'before',
           },
           {
-            pattern: '@schema/*',
+            pattern: '@schema/**',
             group: 'internal',
             position: 'before',
           },
