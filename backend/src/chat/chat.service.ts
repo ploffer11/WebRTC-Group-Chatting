@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Chatroom } from './chatroom';
+import { WsException } from '@nestjs/websockets';
+
 import { WebSocketServerType, WebSocketType } from './chat.types';
+import { Chatroom } from './chatroom';
 
 @Injectable()
 export class ChatService {
   chatRooms: Map<string, Chatroom> = new Map();
-  server: WebSocketServerType;
+  server!: WebSocketServerType;
 
   /**
    * Create a new room.
@@ -58,7 +60,9 @@ export class ChatService {
     const chatRoom = this.find(roomId) ?? this.create(roomId);
     const { user } = client.data;
 
-    if (!(chatRoom?.canAccept(client) && chatRoom?.enter(client))) {
+    if (!user) throw new WsException('Cannot read user data');
+
+    if (!(chatRoom?.canAccept(user) && chatRoom?.enter(user))) {
       return false;
     }
 
@@ -74,6 +78,8 @@ export class ChatService {
   chat(chatText: string, client: WebSocketType) {
     const [roomId] = client.rooms;
     const { user } = client.data;
+
+    if (!user) throw new WsException('Cannot read user data');
 
     this.toRoom(roomId).emit('chat', {
       user,
@@ -92,7 +98,9 @@ export class ChatService {
     const chatRoom = this.find(roomId);
     const { user } = client.data;
 
-    if (!chatRoom?.leave(client)) {
+    if (!user) throw new WsException('Cannot read user data');
+
+    if (!chatRoom?.leave(user)) {
       return false;
     }
 

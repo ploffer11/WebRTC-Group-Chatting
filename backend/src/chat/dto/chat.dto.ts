@@ -1,4 +1,5 @@
 import { IsString } from 'class-validator';
+
 import {
   ChatroomEnterMessageC2S,
   ChatroomLeaveMessageC2S,
@@ -7,18 +8,18 @@ import {
 
 export class ChatroomEnterDto implements ChatroomEnterMessageC2S {
   @IsString()
-  roomId: string;
+  roomId!: string;
 }
 
 export class ChatroomLeaveDto implements ChatroomLeaveMessageC2S {
   @IsString()
-  roomId: string;
+  roomId!: string;
 }
 
 export class ChatroomChatDto implements ChatroomChatMessageC2S {
   @IsString()
-  username: string;
+  username!: string;
 
   @IsString()
-  chatText: string;
+  chatText!: string;
 }

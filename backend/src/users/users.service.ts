@@ -1,9 +1,12 @@
 import crypto from 'node:crypto';
-import { Model } from 'mongoose';
+
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../schema/user.schema';
+
+import { Model } from 'mongoose';
+
 import { ICreateUser } from '../../../schema/auth';
+import { User } from '../schema/user.schema';
 
 @Injectable()
 export class UsersService {
@@ -60,7 +63,7 @@ export class UsersService {
    * @param findOpts Find options
    * @returns User
    */
-  async findOne(findOpts: Partial<User>): Promise<User> {
+  async findOne(findOpts: Partial<User>): Promise<User | null> {
     return await this.userModel.findOne(findOpts);
   }
 
