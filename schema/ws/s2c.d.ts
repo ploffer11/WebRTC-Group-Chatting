@@ -1,13 +1,13 @@
 import { IWebsocketUser } from '.';
 
-export type ChatroomEnterMessage = { roomId: string; user: IWebsocketUser };
-export type ChatroomChatMessage = { chatText: string; user: IWebsocketUser };
-export type ChatroomLeaveMessage = { roomId: string; user: IWebsocketUser };
+export type ChatroomEnterMessageS2C = { roomId: string; user: IWebsocketUser };
+export type ChatroomChatMessageS2C = { chatText: string; user: IWebsocketUser };
+export type ChatroomLeaveMessageS2C = { roomId: string; user: IWebsocketUser };
 
 interface IServerToClientEvents {
-  enter: (opts: ChatroomEnterMessage) => void;
-  chat: (opts: ChatroomChatMessage) => void;
-  leave: (opts: ChatroomLeaveMessage) => void;
+  enter: (opts: ChatroomEnterMessageS2C) => void;
+  chat: (opts: ChatroomChatMessageS2C) => void;
+  leave: (opts: ChatroomLeaveMessageS2C) => void;
 }
 
 export { IServerToClientEvents };
