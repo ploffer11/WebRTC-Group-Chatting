@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ChatService } from './chat.service';
+import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+
 import { ChatController } from './chat.controller';
 import { ChatGateway } from './chat.gateway';
+import { ChatService } from './chat.service';
 import { AuthModule } from '../auth/auth.module';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [

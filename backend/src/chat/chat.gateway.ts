@@ -1,3 +1,4 @@
+import { UseGuards, ValidationPipe } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -9,15 +10,14 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-import { UseGuards, ValidationPipe } from '@nestjs/common';
-import { WsAuthGuard } from '../auth/ws-auth.guard';
-import { WebSocketServerType, WebSocketType } from './chat.types';
 import { ChatService } from './chat.service';
+import { WebSocketServerType, WebSocketType } from './chat.types';
 import {
   ChatroomEnterDto,
   ChatroomLeaveDto,
   ChatroomChatDto,
 } from './dto/chat.dto';
+import { WsAuthGuard } from '../auth/ws-auth.guard';
 
 /**
  * Server - Client Socket API
@@ -47,7 +47,7 @@ export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  server: WebSocketServerType;
+  server!: WebSocketServerType;
 
   constructor(public chatService: ChatService) {}
 

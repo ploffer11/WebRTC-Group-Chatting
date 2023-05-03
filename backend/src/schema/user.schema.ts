@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IUser } from '@schema/auth';
+
 import { HydratedDocument } from 'mongoose';
 import uniqueValidator from 'mongoose-unique-validator';
+
+import { IUser } from '@schema/auth';
 
 @Schema()
 export class User implements IUser {
@@ -11,19 +13,19 @@ export class User implements IUser {
     unique: true,
     required: [true, 'A username is required'],
   })
-  username: string;
+  username!: string;
 
   @Prop({
     type: 'string',
     required: [true, 'A salt is required'],
   })
-  salt: string;
+  salt!: string;
 
   @Prop({
     type: 'string',
     required: [true, 'A (salted) password is required'],
   })
-  saltedPassword: string;
+  saltedPassword!: string;
 }
 
 export type UserDocument = HydratedDocument<User>;

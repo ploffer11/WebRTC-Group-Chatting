@@ -1,9 +1,19 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { LocalAuthGuard } from './local-auth.guard';
+import {
+  Body,
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+
 import { Request } from 'express';
+
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './jwt-auth.guard';
 import { SignUpRequestDto } from './dto/users.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { LocalAuthGuard } from './local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -12,6 +22,8 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Req() req: Request) {
+    // every request that passed AuthGuard should have valid property 'user'.
+    if (!req.user) throw new InternalServerErrorException();
     return this.authService.login(req.user);
   }
 

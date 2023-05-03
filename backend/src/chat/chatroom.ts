@@ -1,4 +1,4 @@
-import { WebSocketType } from './chat.types';
+import { IUserTag } from '../../../schema/auth';
 
 export class Chatroom {
   userIds: Set<string> = new Set();
@@ -13,9 +13,7 @@ export class Chatroom {
     public roomName: string = `room-${roomId}`,
   ) {}
 
-  canAccept(client: WebSocketType) {
-    const { username } = client.data.user;
-
+  canAccept({ username }: IUserTag) {
     if (this.usersCount >= this.maxCapacity) return false;
     if (this.userIds.has(username)) {
       // TODO: uncomment this line
@@ -26,17 +24,13 @@ export class Chatroom {
     return true;
   }
 
-  enter(client: WebSocketType): boolean {
-    const { username } = client.data.user;
-
+  enter({ username }: IUserTag): boolean {
     this.userIds.add(username);
 
     return true;
   }
 
-  leave(client: WebSocketType) {
-    const { username } = client.data.user;
-
+  leave({ username }: IUserTag) {
     this.userIds.delete(username);
     return true;
   }

@@ -4,10 +4,14 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
-import { ICreateUser, IUserTag } from '@schema/auth';
 import { JwtService } from '@nestjs/jwt';
+
 import { Error } from 'mongoose';
+
+import { ICreateUser, IUserTag } from '@schema/auth';
+
+import { UsersService } from '../users/users.service';
+
 import type { JwtPayload } from 'jsonwebtoken';
 
 declare global {
@@ -27,7 +31,7 @@ export class AuthService {
   async validateUser(
     username: string,
     password: string,
-  ): Promise<Express.User> {
+  ): Promise<Express.User | null> {
     const user = await this.usersService.findOne({ username });
 
     if (!user) {
@@ -49,15 +53,21 @@ export class AuthService {
 
       return this.login(createdUser);
     } catch (err) {
-      const [firstError] = Object.values(err?.errors) as Error.ValidatorError[];
+      if (err instanceof Error.ValidationError) {
+        const [firstError] = Object.values(
+          err?.errors,
+        ) as Error.ValidatorError[];
 
-      switch (firstError.kind) {
-        case 'unique':
-          throw new ConflictException({ cause: firstError });
-        case 'required':
-          throw new BadRequestException({ cause: firstError });
-        default:
-          throw new InternalServerErrorException({ cause: firstError });
+        switch (firstError.kind) {
+          case 'unique':
+            throw new ConflictException({ cause: firstError });
+          case 'required':
+            throw new BadRequestException({ cause: firstError });
+          default:
+            throw new InternalServerErrorException({ cause: firstError });
+        }
+      } else {
+        throw new InternalServerErrorException({ cause: err });
       }
     }
   }
