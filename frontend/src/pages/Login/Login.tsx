@@ -32,6 +32,7 @@ const Login = () => {
   const queryClient = useQueryClient();
 
   const loginMutation = useMutation({
+    mutationKey: ['auth', 'login'],
     mutationFn: login,
     onSuccess: (result) => {
       if (result.good()) {
