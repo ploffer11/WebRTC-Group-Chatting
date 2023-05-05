@@ -11,9 +11,11 @@ type AuthorizationCheckParam = {
   errorFallback: React.ReactNode;
 };
 
-const AuthorizationGuard = (
-  props: React.PropsWithChildren<AuthorizationCheckParam>,
-) => {
+const AuthorizationGuard = ({
+  errorFallback,
+  loadingFallback,
+  children,
+}: React.PropsWithChildren<AuthorizationCheckParam>) => {
   const authStore = useAuthStore();
 
   const matches = useMatches();
@@ -50,15 +52,14 @@ const AuthorizationGuard = (
     },
   });
 
-  if (data.status === 'error') {
-    return <>{props.errorFallback}</>;
+  switch (data.status) {
+    case 'error':
+      return <>{errorFallback}</>;
+    case 'loading':
+      return <>{loadingFallback}</>;
+    default:
+      return <>{children}</>;
   }
-
-  if (data.status === 'loading') {
-    return <>{props.loadingFallback}</>;
-  }
-
-  return <>{props.children}</>;
 };
 
 export default AuthorizationGuard;
