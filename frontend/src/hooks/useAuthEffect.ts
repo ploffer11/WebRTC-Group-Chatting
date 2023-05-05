@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 
-import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { UseQueryResult } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 import { ApiFetchResponse } from '../api/api.ts';
 import useAuthStore from '../store/auth.ts';
 
 const useAuthEffect = (data: UseQueryResult<ApiFetchResponse<unknown>>) => {
-  const queryClient = useQueryClient();
   const authStore = useAuthStore();
   const navigate = useNavigate();
 
@@ -17,13 +16,9 @@ const useAuthEffect = (data: UseQueryResult<ApiFetchResponse<unknown>>) => {
         authStore.invalidateSession();
       }
 
-      queryClient
-        .invalidateQueries({ queryKey: ['profile'], exact: true })
-        .then(() => {
-          navigate('/login');
-        });
+      navigate('/login');
     }
-  }, [authStore, data.status, data.data, navigate, queryClient]);
+  }, [authStore, data.status, data.data, navigate]);
 };
 
 export default useAuthEffect;
