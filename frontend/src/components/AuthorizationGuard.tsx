@@ -11,6 +11,11 @@ type AuthorizationCheckParam = {
   errorFallback: React.ReactNode;
 };
 
+type AuthorizationRequirements = {
+  requiresAuth: boolean;
+  requiresNoAuth: boolean;
+};
+
 const AuthorizationGuard = ({
   errorFallback,
   loadingFallback,
@@ -28,25 +33,23 @@ const AuthorizationGuard = ({
     onSuccess: (data) => {
       const authorized = data?.ok() ?? false;
 
-      const requireAuth = matches.some(
-        (item) =>
-          (item.handle as { requireAuth?: boolean })?.requireAuth ?? false,
-      );
-
-      const requireNoAuth = matches.some(
-        (item) =>
-          (item.handle as { requireNoAuth?: boolean })?.requireNoAuth ?? false,
+      const { requiresAuth, requiresNoAuth } = matches.reduce(
+        (prevRequirements, { handle }) => ({ ...prevRequirements, handle }),
+        {
+          requiresAuth: false,
+          requiresNoAuth: false,
+        } as AuthorizationRequirements,
       );
 
       if (!authorized) {
         authStore.invalidateSession();
       }
 
-      if (!authorized && requireAuth) {
+      if (!authorized && requiresAuth) {
         navigate('/login', { replace: true });
       }
 
-      if (authorized && !requireNoAuth) {
+      if (authorized && !requiresNoAuth) {
         navigate('/main', { replace: true });
       }
     },
