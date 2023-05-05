@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import { useMatches, useNavigate } from 'react-router-dom';
 
-import { profile } from '../api/auth.ts';
 import useAuthStore from '../store/auth.ts';
 
 type AuthorizationCheckParam = {
@@ -26,31 +26,44 @@ const AuthorizationGuard = ({
   const matches = useMatches();
   const navigate = useNavigate();
 
-  const data = useQuery({
-    queryKey: ['auth', 'profile'],
-    queryFn: profile,
-    cacheTime: 1000 * 60 * 60, // 임시로 1시간으로 지정
-    onSuccess: (data) => {
-      const authorized = data?.ok() ?? false;
-
-      const { requiresAuth, requiresNoAuth } = matches.reduce(
-        (prevRequirements, { handle }) => ({ ...prevRequirements, handle }),
+  const { requiresAuth, requiresNoAuth } = useMemo(
+    () =>
+      matches.reduce(
+        (prevRequirements, { handle }) => ({
+          ...prevRequirements,
+          ...(handle as AuthorizationRequirements),
+        }),
         {
           requiresAuth: false,
           requiresNoAuth: false,
         } as AuthorizationRequirements,
-      );
+      ),
+    [matches],
+  );
 
-      if (!authorized) {
+  const data = useQuery({
+    queryKey: ['auth', 'profile'],
+    queryFn: () =>
+      axios({
+        method: 'get',
+        url: '/auth/profile',
+        baseURL: import.meta.env.VITE_API_URL,
+        headers: { Authorization: `Bearer ${authStore.access_token}` },
+        validateStatus: () => true,
+      }),
+    retry: 0,
+    cacheTime: 1000 * 60 * 60, // 임시로 1시간으로 지정
+    onSuccess: ({ status }) => {
+      // Validated
+      if (status < 300) {
+        if (!requiresNoAuth) {
+          navigate('/main', { replace: true });
+        }
+      } else if (status === 401) {
         authStore.invalidateSession();
-      }
-
-      if (!authorized && requiresAuth) {
-        navigate('/login', { replace: true });
-      }
-
-      if (authorized && !requiresNoAuth) {
-        navigate('/main', { replace: true });
+        if (requiresAuth) {
+          navigate('/login', { replace: true });
+        }
       }
     },
   });
