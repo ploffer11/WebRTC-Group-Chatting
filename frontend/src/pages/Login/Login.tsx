@@ -12,9 +12,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-import { login } from '../../api/auth.ts';
+import { IUserCredentials } from '@schema/auth';
+
 import useTitle from '../../hooks/useTitle.ts';
 import useAuthStore from '../../store/auth.ts';
 
@@ -33,20 +35,30 @@ const Login = () => {
 
   const loginMutation = useMutation({
     mutationKey: ['auth', 'login'],
-    mutationFn: login,
-    onSuccess: (result) => {
-      if (result.good()) {
-        // HTTP 200
-        authStore.setAccessToken(result.body.access_token, enableAutoLogin);
+    mutationFn: (credentials: IUserCredentials) =>
+      axios({
+        method: 'post',
+        url: '/auth/login',
+        baseURL: import.meta.env.VITE_API_URL,
+        data: credentials,
+      }),
+    onSuccess: ({ status, data }) => {
+      switch (status) {
+        case 200:
+        case 201:
+          // HTTP 200
+          authStore.setAccessToken(data.access_token, enableAutoLogin);
 
-        queryClient.invalidateQueries({ queryKey: ['profile'] }).then(() => {
-          navigate('/main');
-        });
-      } else if (result.unauthorized()) {
-        // HTTP 401
-        setIdError('아이디 또는 비밀번호가 일치하지 않습니다.');
-        setPwError('아이디 또는 비밀번호가 일치하지 않습니다.');
-      } else {
+          queryClient.invalidateQueries({ queryKey: ['profile'] }).then(() => {
+            navigate('/main');
+          });
+          break;
+        case 401:
+          // HTTP 401
+          setIdError('아이디 또는 비밀번호가 일치하지 않습니다.');
+          setPwError('아이디 또는 비밀번호가 일치하지 않습니다.');
+          break;
+        default:
         // TODO: other error handling
       }
     },

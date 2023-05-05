@@ -41,7 +41,7 @@ const router = createBrowserRouter(
         path={'main'}
         element={<Main />}
         loader={simpleSessionValidator(true)}
-        handle={{ requireAuth: true }}
+        handle={{ requiresAuth: true }}
       />
     </Route>,
   ),
