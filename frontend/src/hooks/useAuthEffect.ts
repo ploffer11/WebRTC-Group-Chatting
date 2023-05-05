@@ -6,19 +6,22 @@ import { useNavigate } from 'react-router-dom';
 import { ApiFetchResponse } from '../api/api.ts';
 import useAuthStore from '../store/auth.ts';
 
-const useAuthEffect = (data: UseQueryResult<ApiFetchResponse<unknown>>) => {
+const useAuthEffect = ({
+  status,
+  data,
+}: UseQueryResult<ApiFetchResponse<unknown>>) => {
   const authStore = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (data.status === 'success' && data.data.unauthorized()) {
+    if (status === 'success' && data.unauthorized()) {
       if (authStore.access_token !== '') {
         authStore.invalidateSession();
       }
 
       navigate('/login');
     }
-  }, [authStore, data.status, data.data, navigate]);
+  }, [authStore, status, data, navigate]);
 };
 
 export default useAuthEffect;
