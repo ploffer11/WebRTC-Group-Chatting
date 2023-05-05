@@ -27,7 +27,7 @@ const AuthorizationGuard = ({
   const navigate = useNavigate();
 
   const data = useQuery({
-    queryKey: ['profile'],
+    queryKey: ['auth', 'profile'],
     queryFn: profile,
     cacheTime: 1000 * 60 * 60, // 임시로 1시간으로 지정
     onSuccess: (data) => {
