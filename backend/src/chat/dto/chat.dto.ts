@@ -1,5 +1,6 @@
-import { IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsString, Max, Min } from 'class-validator';
 
+import { ICreateChatroom, IPatchChatroom } from '@schema/chatroom';
 import {
   ChatroomEnterMessageC2S,
   ChatroomLeaveMessageC2S,
@@ -22,4 +23,30 @@ export class ChatroomChatDto implements ChatroomChatMessageC2S {
 
   @IsString()
   chatText!: string;
+}
+
+export class CreateChatroomReqDto implements ICreateChatroom {
+  @IsString()
+  roomName!: string;
+
+  @IsInt()
+  @Min(2)
+  @Max(6)
+  maxUserCount!: number;
+
+  @IsBoolean()
+  isTextOnly!: boolean;
+}
+
+export class PatchChatroomReqDto implements IPatchChatroom {
+  @IsString()
+  roomName?: string;
+
+  @IsInt()
+  @Min(2)
+  @Max(6)
+  maxUserCount?: number;
+
+  @IsBoolean()
+  isTextOnly?: boolean;
 }
