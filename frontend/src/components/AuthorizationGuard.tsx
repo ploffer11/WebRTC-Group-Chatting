@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { useMatches, useNavigate } from 'react-router-dom';
 
+import apiRequest from '../api/index.ts';
 import useAuthStore from '../store/auth.ts';
 
 type AuthorizationCheckParam = {
@@ -44,11 +44,9 @@ const AuthorizationGuard = ({
   const data = useQuery({
     queryKey: ['auth', 'profile'],
     queryFn: () =>
-      axios({
+      apiRequest({
         method: 'get',
         url: '/auth/profile',
-        baseURL: import.meta.env.VITE_API_URL,
-        headers: { Authorization: `Bearer ${authStore.access_token}` },
         validateStatus: () => true,
       }),
     retry: 0,

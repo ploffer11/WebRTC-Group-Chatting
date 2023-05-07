@@ -12,11 +12,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 import { IUserCredentials } from '@schema/auth';
 
+import apiRequest from '../../api/index.ts';
 import useTitle from '../../hooks/useTitle.ts';
 import useAuthStore from '../../store/auth.ts';
 
@@ -33,13 +33,14 @@ const Login = () => {
   const authStore = useAuthStore();
   const queryClient = useQueryClient();
 
+  // useMutation() for login api
+
   const loginMutation = useMutation({
     mutationKey: ['auth', 'login'],
     mutationFn: (credentials: IUserCredentials) =>
-      axios({
+      apiRequest({
         method: 'post',
         url: '/auth/login',
-        baseURL: import.meta.env.VITE_API_URL,
         data: credentials,
       }),
     onSuccess: ({ status, data }) => {
