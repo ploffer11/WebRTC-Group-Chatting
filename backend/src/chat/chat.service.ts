@@ -34,7 +34,7 @@ export class ChatService {
   }
 
   /**
-   * Find all existed chatrooms.
+   * Find all existing chatrooms.
    *
    * @returns All chatrooms array.
    */
