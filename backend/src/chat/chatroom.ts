@@ -5,7 +5,6 @@ import { IChatroom } from '@schema/chatroom';
 
 export class Chatroom implements IChatroom {
   userIds: Set<string> = new Set();
-  currentUserCount = 0;
   roomId = '';
 
   constructor(
@@ -15,6 +14,10 @@ export class Chatroom implements IChatroom {
     public isTextOnly: boolean,
   ) {
     this.roomId = randomUUID();
+  }
+
+  get currentUserCount(): number {
+    return this.userIds.size;
   }
 
   canAccept({ username }: IUserTag) {
@@ -30,13 +33,11 @@ export class Chatroom implements IChatroom {
 
   enter({ username }: IUserTag): boolean {
     this.userIds.add(username);
-    this.currentUserCount++;
     return true;
   }
 
   leave({ username }: IUserTag) {
     this.userIds.delete(username);
-    this.currentUserCount--;
     return true;
   }
 
