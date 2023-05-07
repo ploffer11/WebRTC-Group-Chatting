@@ -30,7 +30,7 @@ export class ChatController {
     return this.chatService.createChatroom(createChatroomDto, user).serialize();
   }
 
-  @Get('/all')
+  @Get()
   findAllChatrooms(): IChatroom[] {
     return this.chatService
       .findAllChatrooms()
