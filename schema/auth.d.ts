@@ -16,6 +16,7 @@ interface IAuthResult {
   access_token: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ICreateUser extends IUserCredentials {}
 
 export { IUserTag, IUserCredentials, IUser, IAuthResult, ICreateUser };
