@@ -68,17 +68,13 @@ export class ChatService {
     user: IUserTag,
     patchChatroomReqDto: PatchChatroomReqDto,
   ): Chatroom {
-    const { roomName, maxUserCount, isTextOnly } = patchChatroomReqDto;
-
     const room = this.findChatroom(roomId);
 
     if (!(room.hostUser.username === user.username)) {
       throw new UnauthorizedException('User is not host');
     }
 
-    room.roomName = roomName ?? room.roomName;
-    room.maxUserCount = maxUserCount ?? room.maxUserCount;
-    room.isTextOnly = isTextOnly ?? room.isTextOnly;
+    Object.assign(room, patchChatroomReqDto);
 
     return room;
   }
