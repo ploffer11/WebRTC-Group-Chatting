@@ -1,8 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 
 import { WebSocketServerType, WebSocketType } from './chat.types';
 import { Chatroom } from './chatroom';
+import { CreateChatroomReqDto, PatchChatroomReqDto } from './dto/chat.dto';
+import { IUserTag } from '../../../schema/auth';
 
 @Injectable()
 export class ChatService {
@@ -12,15 +18,28 @@ export class ChatService {
   /**
    * Create a new room.
    *
-   * @param roomId
-   * @returns a new chatroom which has given `roomId`.
+   * @param createChatroomDto
+   * @returns a new chatroom which has given `createChatroomDto`
    */
-  create(roomId: string): Chatroom | null {
-    if (this.chatRooms.has(roomId)) return null;
+  createChatroom(
+    createChatroomDto: CreateChatroomReqDto,
+    user: IUserTag,
+  ): Chatroom {
+    const { roomName, maxUserCount, isTextOnly } = createChatroomDto;
 
-    const newRoom = new Chatroom(roomId);
-    this.chatRooms.set(roomId, newRoom);
+    const newRoom = new Chatroom(roomName, user, maxUserCount, isTextOnly);
+
+    this.chatRooms.set(newRoom.roomId, newRoom);
     return newRoom;
+  }
+
+  /**
+   * Find all existed chatrooms.
+   *
+   * @returns All chatrooms array.
+   */
+  findAllChatrooms(): Chatroom[] {
+    return [...this.chatRooms.values()];
   }
 
   /**
@@ -29,8 +48,58 @@ export class ChatService {
    * @param roomId room id
    * @returns chatroom with `roomId`.
    */
-  find(roomId: string) {
-    return this.chatRooms.get(roomId);
+  findChatroom(roomId: string): Chatroom {
+    const room = this.chatRooms.get(roomId);
+    if (!room) {
+      throw new BadRequestException('Invalid roomId.');
+    }
+    return room;
+  }
+
+  /**
+   * patched chatroom by using patchChatroomReqDto
+   *
+   * @param roomId
+   * @param patchChatroomReqDto
+   * @returns patched room
+   */
+  patchChatroom(
+    roomId: string,
+    user: IUserTag,
+    patchChatroomReqDto: PatchChatroomReqDto,
+  ): Chatroom {
+    const { roomName, maxUserCount, isTextOnly } = patchChatroomReqDto;
+
+    const room = this.findChatroom(roomId);
+
+    if (!(room.hostUser.username === user.username)) {
+      throw new UnauthorizedException('User is not host');
+    }
+
+    room.roomName = roomName ?? room.roomName;
+    room.maxUserCount = maxUserCount ?? room.maxUserCount;
+    room.isTextOnly = isTextOnly ?? room.isTextOnly;
+
+    return room;
+  }
+
+  /**
+   * delete chatroom by using patchChatroomReqDto
+   *
+   * @param roomId
+   * @returns true if deleted, throw exception otherwise
+   */
+  deleteChatroom(roomId: string, user: IUserTag): boolean {
+    const room = this.findChatroom(roomId);
+
+    if (!(room.hostUser.username === user.username)) {
+      throw new UnauthorizedException('User is not host');
+    }
+
+    room.close();
+    this.chatRooms.delete(roomId);
+
+    return true;
   }
 
   /**
@@ -57,10 +126,17 @@ export class ChatService {
    * @returns `true` if success, `false` otherwise.
    */
   async enter(roomId: string, client: WebSocketType) {
-    const chatRoom = this.find(roomId) ?? this.create(roomId);
+    const chatRoom = this.findChatroom(roomId);
+
+    if (!chatRoom) {
+      throw new WsException('Chatroom not found');
+    }
+
     const { user } = client.data;
 
-    if (!user) throw new WsException('Cannot read user data');
+    if (!user) {
+      throw new WsException('Cannot read user data');
+    }
 
     if (!(chatRoom?.canAccept(user) && chatRoom?.enter(user))) {
       return false;
@@ -72,7 +148,7 @@ export class ChatService {
       user,
     });
 
-    return false;
+    return true;
   }
 
   chat(chatText: string, client: WebSocketType) {
@@ -95,7 +171,7 @@ export class ChatService {
    * @returns `true` if success, `false` otherwise.
    */
   async leave(roomId: string, client: WebSocketType) {
-    const chatRoom = this.find(roomId);
+    const chatRoom = this.findChatroom(roomId);
     const { user } = client.data;
 
     if (!user) throw new WsException('Cannot read user data');
