@@ -5,7 +5,8 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import { Model } from 'mongoose';
 
-import { ICreateUser } from '../../../schema/auth';
+import { ICreateUser } from '@schema/auth';
+
 import { User } from '../schema/user.schema';
 
 @Injectable()
