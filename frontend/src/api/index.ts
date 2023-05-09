@@ -2,11 +2,11 @@ import axios from 'axios';
 
 import useAuthStore from '../store/auth';
 
-const axiosInstance = axios.create({
+const apiRequest = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });
 
-axiosInstance.interceptors.request.use((config) => {
+apiRequest.interceptors.request.use((config) => {
   const { access_token } = useAuthStore.getState();
 
   if (access_token !== '') {
@@ -17,4 +17,4 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
-export default axiosInstance;
+export default apiRequest;
