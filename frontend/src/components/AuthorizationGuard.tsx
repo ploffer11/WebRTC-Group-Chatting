@@ -12,8 +12,8 @@ type AuthorizationCheckParam = {
 };
 
 type AuthorizationRequirements = {
-  requiresAuth: boolean;
-  requiresNoAuth: boolean;
+  redirectIfAuth?: string;
+  redirectIfNoAuth?: string;
 };
 
 const AuthorizationGuard = ({
@@ -26,17 +26,14 @@ const AuthorizationGuard = ({
   const matches = useMatches();
   const navigate = useNavigate();
 
-  const { requiresAuth, requiresNoAuth } = useMemo(
+  const { redirectIfAuth, redirectIfNoAuth } = useMemo(
     () =>
       matches.reduce(
         (prevRequirements, { handle }) => ({
           ...prevRequirements,
           ...(handle as AuthorizationRequirements),
         }),
-        {
-          requiresAuth: false,
-          requiresNoAuth: false,
-        } as AuthorizationRequirements,
+        {} as AuthorizationRequirements,
       ),
     [matches],
   );
@@ -54,13 +51,13 @@ const AuthorizationGuard = ({
     onSuccess: ({ status }) => {
       // Validated
       if (status < 300) {
-        if (!requiresNoAuth) {
-          navigate('/main', { replace: true });
+        if (redirectIfAuth) {
+          navigate(redirectIfAuth, { replace: true });
         }
       } else if (status === 401) {
         authStore.invalidateSession();
-        if (requiresAuth) {
-          navigate('/login', { replace: true });
+        if (redirectIfNoAuth) {
+          navigate(redirectIfNoAuth, { replace: true });
         }
       }
     },
