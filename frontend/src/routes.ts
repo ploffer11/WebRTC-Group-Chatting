@@ -34,5 +34,4 @@ export const NoAuthRequiredRoute = {
 
 export const IndexRoute = {
   handle: IndexHandle,
-  loader: simpleSessionValidator(true, true),
 };
