@@ -11,6 +11,7 @@ import {
 } from 'react-router-dom';
 
 import Base from './Base.tsx';
+import Loading from './components/Loading.tsx';
 import Login from './pages/Login/Login.tsx';
 import Main from './pages/Main/Main.tsx';
 import {
@@ -24,7 +25,7 @@ import './fonts.css';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path={'/'} element={<Base />}>
-      <Route index {...IndexRoute} />
+      <Route index {...IndexRoute} element={<Loading />} />
       <Route path={'login'} element={<Login />} />
       <Route path={'signup'} element={<Login />} {...NoAuthRequiredRoute} />
       <Route path={'main'} element={<Main />} {...AuthRequiredRoute} />
