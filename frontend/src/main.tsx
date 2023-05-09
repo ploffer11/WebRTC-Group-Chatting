@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createBrowserRouter,
   createRoutesFromElements,
-  redirect,
   Route,
   RouterProvider,
 } from 'react-router-dom';
@@ -14,35 +13,21 @@ import {
 import Base from './Base.tsx';
 import Login from './pages/Login/Login.tsx';
 import Main from './pages/Main/Main.tsx';
-import useAuthStore from './store/auth.ts';
+import {
+  AuthRequiredRoute,
+  IndexRoute,
+  NoAuthRequiredRoute,
+} from './routes.ts';
 
 import './fonts.css';
-
-const simpleSessionValidator = (shouldBeLogin: boolean) => async () => {
-  const { access_token } = useAuthStore.getState();
-  const isSessionValid = access_token !== '';
-
-  if (shouldBeLogin) {
-    if (!isSessionValid) return redirect('/login');
-  } else {
-    if (isSessionValid) return redirect('/main');
-  }
-
-  return null;
-};
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path={'/'} element={<Base />}>
-      <Route index loader={simpleSessionValidator(true)} />
+      <Route index {...IndexRoute} />
       <Route path={'login'} element={<Login />} />
-      <Route path={'signup'} element={<Login />} />
-      <Route
-        path={'main'}
-        element={<Main />}
-        loader={simpleSessionValidator(true)}
-        handle={{ requiresAuth: true }}
-      />
+      <Route path={'signup'} element={<Login />} {...NoAuthRequiredRoute} />
+      <Route path={'main'} element={<Main />} {...AuthRequiredRoute} />
     </Route>,
   ),
 );
