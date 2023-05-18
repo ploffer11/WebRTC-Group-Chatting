@@ -12,6 +12,7 @@ import {
 
 import Base from './Base.tsx';
 import Loading from './components/Loading.tsx';
+import Chat from './pages/Chat/Chat.tsx';
 import Login from './pages/Login/Login.tsx';
 import Main from './pages/Main/Main.tsx';
 import {
@@ -28,6 +29,7 @@ const router = createBrowserRouter(
       <Route index {...IndexRoute} element={<Loading />} />
       <Route path={'login'} element={<Login />} />
       <Route path={'signup'} element={<Login />} {...NoAuthRequiredRoute} />
+      <Route path={'chat'} element={<Chat />} {...AuthRequiredRoute} />
       <Route path={'main'} element={<Main />} {...AuthRequiredRoute} />
     </Route>,
   ),
