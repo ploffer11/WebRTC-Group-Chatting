@@ -51,7 +51,7 @@ export class AuthService {
     try {
       const createdUser = await this.usersService.create(opts);
 
-      return this.login(createdUser);
+      return this.login({ username: createdUser.username });
     } catch (err) {
       if (err instanceof Error.ValidationError) {
         const [firstError] = Object.values(
