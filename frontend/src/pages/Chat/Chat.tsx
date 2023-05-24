@@ -55,23 +55,30 @@ const Chat = () => {
                       </Typography>
                     }
                     subheader={
-                      <>
-                        <Avatar></Avatar>
-                        <Typography variant={'caption'}>
-                          {chatroom.hostUser.username}
-                        </Typography>
-                      </>
+                      <Chip
+                        label={chatroom.isTextOnly ? 'textOnly' : 'videoChat'}
+                        color={'primary'}
+                        size={'small'}
+                      />
                     }
                   />
                   <CardContent>
-                    <Typography variant={'body1'}>
-                      {chatroom.currentUserCount}/{chatroom.maxUserCount}
-                    </Typography>
-                    <Chip
-                      label={chatroom.isTextOnly ? 'textOnly' : 'videoChat'}
-                      color={'primary'}
-                      size={'small'}
-                    />
+                    <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                      <Stack alignItems={'center'}>
+                        <Avatar />
+                        <Typography variant={'caption'}>
+                          {chatroom.hostUser.username}
+                        </Typography>
+                      </Stack>
+                      {chatroom.currentUserCount > 1 && (
+                        <Stack alignItems={'center'}>
+                          <Avatar>…</Avatar>
+                          <Typography variant={'caption'}>
+                            +{chatroom.currentUserCount - 1} users
+                          </Typography>
+                        </Stack>
+                      )}
+                    </Stack>
                   </CardContent>
                   <CardActions>
                     <Button size={'small'}>JOIN</Button>
