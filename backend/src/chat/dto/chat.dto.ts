@@ -19,9 +19,6 @@ export class ChatroomLeaveDto implements ChatroomLeaveMessageC2S {
 
 export class ChatroomChatDto implements ChatroomChatMessageC2S {
   @IsString()
-  username!: string;
-
-  @IsString()
   chatText!: string;
 }
 
