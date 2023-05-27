@@ -148,7 +148,7 @@ export class ChatService {
   }
 
   chat(chatText: string, client: WebSocketType) {
-    const [roomId] = client.rooms;
+    const [, roomId] = client.rooms;
     const { user } = client.data;
 
     if (!user) throw new WsException('Cannot read user data');
