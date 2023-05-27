@@ -11,14 +11,17 @@ const Chatroom = () => {
   useTitle('Chatroom');
 
   const params = useParams();
-  const roomId = useMemo(() => params['roomId'], [params]);
+  const roomId = useMemo(() => params['roomId'] ?? '', [params]);
   const roomStore = useChatStore();
 
   const [chatText, setChatText] = useState('');
 
   useEffect(() => {
-    roomStore.connect();
-    if (roomId) roomStore.enter(roomId);
+    if (!roomStore.socket) roomStore.connect();
+  }, [roomStore]);
+
+  useEffect(() => {
+    roomStore.enter(roomId);
   }, [roomStore, roomId]);
 
   return (
