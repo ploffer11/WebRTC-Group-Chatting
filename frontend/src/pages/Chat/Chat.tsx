@@ -12,13 +12,16 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
+import UserAvatar from '../../components/UserAvatar.tsx';
 import { useChatroom, useCreateChatRoom } from '../../hooks/useChatrooms.ts';
 import useTitle from '../../hooks/useTitle.ts';
 
 const Chat = () => {
   useTitle('Chatrooms');
 
+  const navigate = useNavigate();
   const room = useChatroom();
   const createRoom = useCreateChatRoom();
 
@@ -64,24 +67,19 @@ const Chat = () => {
                   />
                   <CardContent>
                     <Stack direction={'row'} alignItems={'center'} spacing={1}>
-                      <Stack alignItems={'center'}>
-                        <Avatar />
-                        <Typography variant={'caption'}>
-                          {chatroom.hostUser.username}
-                        </Typography>
-                      </Stack>
+                      <UserAvatar username={chatroom.hostUser.username} />
                       {chatroom.currentUserCount > 1 && (
-                        <Stack alignItems={'center'}>
-                          <Avatar>…</Avatar>
-                          <Typography variant={'caption'}>
-                            +{chatroom.currentUserCount - 1} users
-                          </Typography>
-                        </Stack>
+                        <Avatar>+{chatroom.currentUserCount - 1}</Avatar>
                       )}
                     </Stack>
                   </CardContent>
                   <CardActions>
-                    <Button size={'small'}>JOIN</Button>
+                    <Button
+                      size={'small'}
+                      onClick={() => navigate(`./${chatroom.roomId}`)}
+                    >
+                      JOIN
+                    </Button>
                   </CardActions>
                 </Card>
               </Fade>
