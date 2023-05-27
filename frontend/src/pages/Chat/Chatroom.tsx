@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Container, Paper, Stack, TextField, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
@@ -11,8 +11,9 @@ const Chatroom = () => {
   useTitle('Chatroom');
 
   const params = useParams();
-  const roomId = useMemo(() => params['roomId'] ?? '', [params]);
+  const roomId = useMemo(() => params['roomId'] ?? null, [params]);
   const roomStore = useChatStore();
+  const storeRef = useRef(() => roomStore);
 
   const [chatText, setChatText] = useState('');
 
@@ -21,8 +22,12 @@ const Chatroom = () => {
   }, [roomStore]);
 
   useEffect(() => {
-    roomStore.enter(roomId);
-  }, [roomStore, roomId]);
+    const storeRefCurrent = storeRef.current();
+    if (!roomId) return;
+    storeRefCurrent.enter(roomId);
+
+    return () => storeRefCurrent.leave(roomId);
+  }, [roomId]);
 
   return (
     <Container maxWidth="sm">
