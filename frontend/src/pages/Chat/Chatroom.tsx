@@ -22,11 +22,12 @@ const Chatroom = () => {
   }, [roomStore]);
 
   useEffect(() => {
-    const storeRefCurrent = storeRef.current();
     if (!roomId) return;
-    storeRefCurrent.enter(roomId);
 
-    return () => storeRefCurrent.leave(roomId);
+    const roomSocket = storeRef.current().socket;
+    roomSocket?.emit('enter', { roomId });
+
+    return () => void roomSocket?.emit('leave', { roomId });
   }, [roomId]);
 
   return (

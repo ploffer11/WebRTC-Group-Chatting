@@ -15,9 +15,7 @@ interface ChatStore {
 
   connect: () => void;
 
-  enter: (roomId: string) => void;
   chat: (chatText: string) => void;
-  leave: (roomId: string) => void;
 }
 
 const useChatStore = create<ChatStore>((set, get) => ({
@@ -46,25 +44,11 @@ const useChatStore = create<ChatStore>((set, get) => ({
     set({ socket });
   },
 
-  enter: (roomId: string) => {
-    const { socket } = get();
-    if (!socket) return;
-
-    socket.emit('enter', { roomId });
-  },
-
   chat: (chatText: string) => {
     const { socket } = get();
     if (!socket) return;
 
     socket.emit('chat', { chatText });
-  },
-
-  leave: (roomId: string) => {
-    const { socket } = get();
-    if (!socket) return;
-
-    socket.emit('leave', { roomId });
   },
 }));
 
