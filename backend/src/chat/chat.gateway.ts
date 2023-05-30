@@ -16,6 +16,9 @@ import {
   ChatroomEnterDto,
   ChatroomLeaveDto,
   ChatroomChatDto,
+  ChatroomRTCOfferDto,
+  ChatroomRTCAnswerDto,
+  ChatroomRTCICECandidateDto,
 } from './dto/chat.dto';
 import { WsAuthGuard } from '../auth/ws-auth.guard';
 
@@ -75,6 +78,33 @@ export class ChatGateway
     { chatText }: ChatroomChatDto,
   ) {
     this.chatService.chat(chatText, client);
+  }
+
+  @SubscribeMessage('offer')
+  handleOffer(
+    @ConnectedSocket() client: WebSocketType,
+    @MessageBody()
+    { toSocketId, offer }: ChatroomRTCOfferDto,
+  ) {
+    this.chatService.offer(toSocketId, offer, client);
+  }
+
+  @SubscribeMessage('answer')
+  handleAnswer(
+    @ConnectedSocket() client: WebSocketType,
+    @MessageBody()
+    { toSocketId, answer }: ChatroomRTCAnswerDto,
+  ) {
+    this.chatService.answer(toSocketId, answer, client);
+  }
+
+  @SubscribeMessage('candidate')
+  handleCandidate(
+    @ConnectedSocket() client: WebSocketType,
+    @MessageBody()
+    { toSocketId, candidate }: ChatroomRTCICECandidateDto,
+  ) {
+    this.chatService.candidate(toSocketId, candidate, client);
   }
 
   @SubscribeMessage('leave')
