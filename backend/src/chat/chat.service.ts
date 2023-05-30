@@ -8,7 +8,7 @@ import { WsException } from '@nestjs/websockets';
 import { WebSocketServerType, WebSocketType } from './chat.types';
 import { Chatroom } from './chatroom';
 import { CreateChatroomReqDto, PatchChatroomReqDto } from './dto/chat.dto';
-import { IUserTag } from '../../../schema/auth';
+import { IUserTag } from '@schema/auth';
 
 @Injectable()
 export class ChatService {
@@ -123,26 +123,17 @@ export class ChatService {
    */
   async enter(roomId: string, client: WebSocketType) {
     const chatRoom = this.findChatroom(roomId);
-
-    if (!chatRoom) {
-      throw new WsException('Chatroom not found');
-    }
-
+    if (!chatRoom) throw new WsException('Chatroom not found');
     const { user } = client.data;
-
-    if (!user) {
-      throw new WsException('Cannot read user data');
-    }
+    if (!user) throw new WsException('Cannot read user data');
 
     if (!(chatRoom?.canAccept(user) && chatRoom?.enter(user))) {
       return false;
     }
 
     await client.join(roomId);
-    this.toRoom(roomId).emit('enter', {
-      roomId,
-      user,
-    });
+
+    this.toRoom(roomId).emit('users', { users: chatRoom.getUsers() });
 
     return true;
   }
@@ -156,6 +147,33 @@ export class ChatService {
     this.toRoom(roomId).emit('chat', {
       user,
       chatText,
+    });
+  }
+
+  offer(toSocketId: string, offer: unknown, client: WebSocketType) {
+    const fromSocketId = client.id;
+
+    this.toRoom(toSocketId).emit('offer', {
+      fromSocketId,
+      offer,
+    });
+  }
+
+  answer(toSocketId: string, answer: unknown, client: WebSocketType) {
+    const fromSocketId = client.id;
+
+    this.toRoom(toSocketId).emit('answer', {
+      fromSocketId,
+      answer,
+    });
+  }
+
+  candidate(toSocketId: string, candidate: unknown, client: WebSocketType) {
+    const fromSocketId = client.id;
+
+    this.toRoom(toSocketId).emit('candidate', {
+      fromSocketId,
+      candidate,
     });
   }
 
@@ -178,10 +196,7 @@ export class ChatService {
 
     await client.leave(roomId);
 
-    this.toRoom(roomId).emit('leave', {
-      roomId,
-      user,
-    });
+    this.toRoom(roomId).emit('users', { users: chatRoom.getUsers() });
 
     return true;
   }
