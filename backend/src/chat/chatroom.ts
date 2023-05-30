@@ -2,9 +2,10 @@ import { randomUUID } from 'crypto';
 
 import { IUserTag } from '@schema/auth';
 import { IChatroom } from '@schema/chatroom';
+import { IWebsocketUser } from '@schema/ws';
 
 export class Chatroom implements IChatroom {
-  userIds: Set<string> = new Set();
+  users: Set<IWebsocketUser> = new Set();
   roomId = '';
 
   constructor(
@@ -17,12 +18,16 @@ export class Chatroom implements IChatroom {
   }
 
   get currentUserCount(): number {
-    return this.userIds.size;
+    return this.users.size;
   }
 
-  canAccept({ username }: IUserTag) {
+  getUsers(): IWebsocketUser[] {
+    return [...this.users.values()];
+  }
+
+  canAccept(user: IWebsocketUser) {
     if (this.currentUserCount >= this.maxUserCount) return false;
-    if (this.userIds.has(username)) {
+    if (this.users.has(user)) {
       // TODO: uncomment this line
       // return false;
       return true;
@@ -31,13 +36,13 @@ export class Chatroom implements IChatroom {
     return true;
   }
 
-  enter({ username }: IUserTag): boolean {
-    this.userIds.add(username);
+  enter(user: IWebsocketUser): boolean {
+    this.users.add(user);
     return true;
   }
 
-  leave({ username }: IUserTag) {
-    this.userIds.delete(username);
+  leave(user: IWebsocketUser) {
+    this.users.delete(user);
     return true;
   }
 
