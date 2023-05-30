@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Container, Paper, Stack, TextField, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
@@ -13,7 +13,6 @@ const Chatroom = () => {
   const params = useParams();
   const roomId = useMemo(() => params['roomId'] ?? null, [params]);
   const roomStore = useChatStore();
-  const storeRef = useRef(() => roomStore);
 
   const [chatText, setChatText] = useState('');
 
@@ -24,11 +23,8 @@ const Chatroom = () => {
   useEffect(() => {
     if (!roomId) return;
 
-    const roomSocket = storeRef.current().socket;
-    roomSocket?.emit('enter', { roomId });
-
-    return () => void roomSocket?.emit('leave', { roomId });
-  }, [roomId]);
+    roomStore.enter(roomId);
+  }, [roomStore, roomId]);
 
   return (
     <Container maxWidth="sm">

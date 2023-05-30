@@ -10,16 +10,20 @@ type SocketType = Socket<IServerToClientEvents, IClientToServerEvents>;
 
 interface ChatStore {
   socket: SocketType | null;
+  roomId: string | null;
 
   messages: ChatroomChatMessageS2C[];
 
   connect: () => void;
 
+  enter: (roomId: string) => void;
   chat: (chatText: string) => void;
+  leave: (roomId: string) => void;
 }
 
 const useChatStore = create<ChatStore>((set, get) => ({
   socket: null,
+  roomId: null,
   messages: [],
 
   connect: () => {
@@ -42,6 +46,26 @@ const useChatStore = create<ChatStore>((set, get) => ({
     socket.on('disconnect', () => set({ socket: null }));
 
     set({ socket });
+  },
+
+  enter: (roomId: string) => {
+    const { socket, roomId: oldRoomId } = get();
+    if (!socket) return;
+    if (oldRoomId) {
+      if (roomId === oldRoomId) return;
+      socket.emit('leave', { roomId: oldRoomId });
+    }
+
+    socket.emit('enter', { roomId });
+    set({ roomId });
+  },
+
+  leave: (roomId: string) => {
+    const { socket } = get();
+    if (!socket) return;
+
+    socket.emit('leave', { roomId });
+    set({ roomId });
   },
 
   chat: (chatText: string) => {
