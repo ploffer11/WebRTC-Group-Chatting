@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { Container, Paper, Stack, TextField, Typography } from '@mui/material';
+import {
+  Container,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+  Zoom,
+} from '@mui/material';
 import { useParams } from 'react-router-dom';
 
 import UserAvatar from '../../components/UserAvatar.js';
@@ -34,12 +41,14 @@ const Chatroom = () => {
         </Typography>
         <Stack spacing={2}>
           {roomStore.messages.map((message, idx) => (
-            <Paper sx={{ p: 1 }} key={idx}>
-              <Stack direction={'row'} spacing={1}>
-                <UserAvatar username={message.user.username} />
-                <Typography sx={{ width: 1 }}>{message.chatText}</Typography>
-              </Stack>
-            </Paper>
+            <Zoom in={true} key={idx}>
+              <Paper sx={{ p: 1 }}>
+                <Stack direction={'row'} spacing={1}>
+                  <UserAvatar username={message.user.username} />
+                  <Typography sx={{ width: 1 }}>{message.chatText}</Typography>
+                </Stack>
+              </Paper>
+            </Zoom>
           ))}
         </Stack>
         <form
