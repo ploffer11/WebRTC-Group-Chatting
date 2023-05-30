@@ -33,13 +33,20 @@ const Chatroom = () => {
     roomStore.enter(roomId);
   }, [roomStore, roomId]);
 
+  useEffect(() => {
+    scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, [roomStore.messages]);
+
   return (
     <Container maxWidth="sm" sx={{ maxHeight: '100%' }}>
       <Stack sx={{ mt: 16 }} alignItems={'stretch'} spacing={2}>
         <Typography align={'center'} variant={'h1'}>
           Chatroom
         </Typography>
-        <Stack sx={{ maxHeight: 'sm', overflow: 'auto' }}>
+        <Stack sx={{ maxHeight: 'sm', overflow: 'auto', mb: 32 }}>
           {roomStore.messages.map((message, idx) => (
             <Zoom in={true} key={idx}>
               <Paper elevation={1} sx={{ p: 1, m: 1 }}>
@@ -51,6 +58,7 @@ const Chatroom = () => {
             </Zoom>
           ))}
         </Stack>
+        <Container sx={{ height: 16 }} />
         <Paper
           elevation={5}
           sx={{
