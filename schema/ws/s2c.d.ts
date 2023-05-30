@@ -1,21 +1,17 @@
 import { IWebsocketUser } from '.';
 
-export type ChatroomEnterMessageS2C = { roomId: string; user: IWebsocketUser };
 export type ChatroomChatMessageS2C = { chatText: string; user: IWebsocketUser };
-export type ChatroomLeaveMessageS2C = { roomId: string; user: IWebsocketUser };
-export type ChatroomUsersMessageS2C = { users: string[] };
+export type ChatroomUsersMessageS2C = { users: IWebsocketUser[] };
 
-export type RTCOfferMessageS2C = { fromUsername: string; offer: unknown };
-export type RTCAnswerMessageS2C = { fromUsername: string; answer: unknown };
+export type RTCOfferMessageS2C = { fromSocketId: string; offer: unknown };
+export type RTCAnswerMessageS2C = { fromSocketId: string; answer: unknown };
 export type RTCICECandidateMesageS2C = {
-  fromUsername: string;
+  fromSocketId: string;
   candidate: unknown;
 };
 
 export interface IServerToClientEvents {
-  enter: (opts: ChatroomEnterMessageS2C) => void;
   chat: (opts: ChatroomChatMessageS2C) => void;
-  leave: (opts: ChatroomLeaveMessageS2C) => void;
 
   users: (opts: ChatroomUsersMessageS2C) => void;
 
