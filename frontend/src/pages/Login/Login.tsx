@@ -12,7 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { IUserCredentials } from '@schema/auth';
 
@@ -154,6 +154,20 @@ const Login = () => {
         >
           {loginMutation.isLoading ? '로그인 중...' : '로그인'}
         </Button>
+
+        <Stack spacing={2} sx={{ mt: 8 }}>
+          <Typography variant={'body1'} textAlign={'center'}>
+            아직 계정이 없다면?
+          </Typography>
+          <Button
+            component={Link}
+            variant={'contained'}
+            size={'large'}
+            to={'/signup'}
+          >
+            회원가입
+          </Button>
+        </Stack>
       </Box>
     </Container>
   );
