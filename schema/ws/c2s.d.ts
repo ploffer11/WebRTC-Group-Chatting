@@ -2,10 +2,10 @@ export type ChatroomEnterMessageC2S = { roomId: string };
 export type ChatroomChatMessageC2S = { chatText: string };
 export type ChatroomLeaveMessageC2S = { roomId: string };
 
-export type RTCOfferMessageC2S = { toUsername: string; offer: unknown };
-export type RTCAnswerMessageC2S = { toUsername: string; answer: unknown };
+export type RTCOfferMessageC2S = { toSocketId: string; offer: unknown };
+export type RTCAnswerMessageC2S = { toSocketId: string; answer: unknown };
 export type RTCICECandidateMesageC2S = {
-  toUsername: string;
+  toSocketId: string;
   candidate: unknown;
 };
 

@@ -1,6 +1,9 @@
 import { IUserTag } from '../auth';
 
-export interface IWebsocketUser extends IUserTag {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IWebsocketUser extends IUserTag {
+  socketId: string;
+}
 export interface ISocketData {
   user: IWebsocketUser;
 }
