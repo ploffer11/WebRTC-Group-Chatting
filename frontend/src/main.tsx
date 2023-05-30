@@ -14,6 +14,7 @@ import Base from './Base.tsx';
 import Loading from './components/Loading.tsx';
 import Login from './pages/Login/Login.tsx';
 import Main from './pages/Main/Main.tsx';
+import SignUp from './pages/SignUp/SignUp.tsx';
 import {
   AuthRequiredRoute,
   IndexRoute,
@@ -27,7 +28,7 @@ const router = createBrowserRouter(
     <Route path={'/'} element={<Base />}>
       <Route index {...IndexRoute} element={<Loading />} />
       <Route path={'login'} element={<Login />} />
-      <Route path={'signup'} element={<Login />} {...NoAuthRequiredRoute} />
+      <Route path={'signup'} element={<SignUp />} {...NoAuthRequiredRoute} />
       <Route path={'main'} element={<Main />} {...AuthRequiredRoute} />
     </Route>,
   ),
