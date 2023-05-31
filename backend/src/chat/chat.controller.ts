@@ -39,7 +39,7 @@ export class ChatController {
 
   @Get(':roomId')
   findChatroom(@Param('roomId') roomId: string): IChatroom {
-    return this.chatService.findChatroom(roomId).serialize();
+    return this.chatService.findChatroom(roomId);
   }
 
   @Patch(':roomId')
@@ -48,9 +48,7 @@ export class ChatController {
     @User() user: IUserTag,
     @Body() patchChatroomReqDto: PatchChatroomReqDto,
   ): IChatroom {
-    return this.chatService
-      .patchChatroom(roomId, user, patchChatroomReqDto)
-      .serialize();
+    return this.chatService.patchChatroom(roomId, user, patchChatroomReqDto);
   }
 
   @Delete(':roomId')
