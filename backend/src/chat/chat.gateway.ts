@@ -64,11 +64,11 @@ export class ChatGateway
   }
 
   @SubscribeMessage('enter')
-  handleEnter(
+  async handleEnter(
     @ConnectedSocket() client: WebSocketType,
     @MessageBody(new ValidationPipe()) { roomId }: ChatroomEnterDto,
   ) {
-    this.chatService.enter(roomId, client);
+    await this.chatService.enter(roomId, client);
   }
 
   @SubscribeMessage('chat')
@@ -108,12 +108,12 @@ export class ChatGateway
   }
 
   @SubscribeMessage('leave')
-  handleLeave(
+  async handleLeave(
     @ConnectedSocket() client: WebSocketType,
     @MessageBody()
     { roomId }: ChatroomLeaveDto,
   ) {
-    this.chatService.leave(roomId, client);
+    await this.chatService.leave(roomId, client);
   }
 
   handleDisconnect(@ConnectedSocket() client: WebSocketType) {
