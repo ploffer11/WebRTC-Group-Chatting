@@ -50,9 +50,11 @@ const Login = () => {
           // HTTP 200
           authStore.setAccessToken(data.access_token, enableAutoLogin);
 
-          queryClient.invalidateQueries({ queryKey: ['profile'] }).then(() => {
-            navigate('/main');
-          });
+          queryClient
+            .invalidateQueries({ queryKey: ['auth', 'profile'] })
+            .then(() => {
+              navigate('/main');
+            });
           break;
         case 401:
           // HTTP 401
