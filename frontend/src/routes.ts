@@ -1,5 +1,5 @@
 const AuthRequiredHandle = { redirectIfNoAuth: '/login' };
-const NoAuthRequiredHandle = { redirectIfAuth: '/main' };
+const NoAuthRequiredHandle = { redirectIfAuth: '/chat' };
 const IndexHandle = { ...AuthRequiredHandle, ...NoAuthRequiredHandle };
 
 export const AuthRequiredRoute = {

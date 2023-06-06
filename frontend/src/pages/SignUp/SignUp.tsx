@@ -50,7 +50,7 @@ export default function SignUp() {
           queryClient
             .invalidateQueries({ queryKey: ['auth', 'profile'] })
             .then(() => {
-              navigate('/main');
+              navigate('/chat');
             });
           break;
         case 409: // Duplicate

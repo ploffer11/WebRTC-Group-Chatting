@@ -53,7 +53,7 @@ const Login = () => {
           queryClient
             .invalidateQueries({ queryKey: ['auth', 'profile'] })
             .then(() => {
-              navigate('/main');
+              navigate('/chat');
             });
           break;
         case 401:
