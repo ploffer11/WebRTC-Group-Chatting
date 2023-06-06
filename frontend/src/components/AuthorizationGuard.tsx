@@ -16,6 +16,22 @@ type AuthorizationRequirements = {
   redirectIfNoAuth?: string;
 };
 
+const getRedirectLocation = (
+  status: number,
+  redirectIfAuth: string | undefined,
+  redirectIfNoAuth: string | undefined,
+) => {
+  if (status < 300 && redirectIfAuth) {
+    return redirectIfAuth;
+  }
+
+  if (status === 401 && redirectIfNoAuth) {
+    return redirectIfNoAuth;
+  }
+
+  return null;
+};
+
 const AuthorizationGuard = ({
   errorFallback,
   loadingFallback,
@@ -49,19 +65,34 @@ const AuthorizationGuard = ({
     retry: 0,
     cacheTime: 1000 * 60 * 60, // 임시로 1시간으로 지정
     onSuccess: ({ status }) => {
-      // Validated
-      if (status < 300) {
-        if (redirectIfAuth) {
-          navigate(redirectIfAuth, { replace: true });
-        }
-      } else if (status === 401) {
+      const redirectLocation = getRedirectLocation(
+        status,
+        redirectIfAuth,
+        redirectIfNoAuth,
+      );
+
+      if (status === 401) {
         authStore.invalidateSession();
-        if (redirectIfNoAuth) {
-          navigate(redirectIfNoAuth, { replace: true });
-        }
+      }
+
+      if (redirectLocation) {
+        navigate(redirectLocation, { replace: true });
       }
     },
   });
+
+  // 데이터 로딩이 완료된 상황에서 곧 redirect 될 경우, 페이지 렌더링 방지
+  if (data.status === 'success') {
+    const willBeRedirect = !!getRedirectLocation(
+      data.data.status,
+      redirectIfAuth,
+      redirectIfNoAuth,
+    );
+
+    if (willBeRedirect) {
+      return <>{loadingFallback}</>;
+    }
+  }
 
   switch (data.status) {
     case 'error':
