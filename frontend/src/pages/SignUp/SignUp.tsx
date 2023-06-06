@@ -47,9 +47,11 @@ export default function SignUp() {
         case 201: // Created
           authStore.setAccessToken(data.access_token, false);
 
-          queryClient.invalidateQueries({ queryKey: ['profile'] }).then(() => {
-            navigate('/main');
-          });
+          queryClient
+            .invalidateQueries({ queryKey: ['auth', 'profile'] })
+            .then(() => {
+              navigate('/main');
+            });
           break;
         case 409: // Duplicate
           setIdError('이미 사용 중인 아이디 입니다.');
