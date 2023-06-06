@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import { useMatches, useNavigate } from 'react-router-dom';
@@ -65,33 +65,32 @@ const AuthorizationGuard = ({
     retry: 0,
     cacheTime: 1000 * 60 * 60, // 임시로 1시간으로 지정
     onSuccess: ({ status }) => {
-      const redirectLocation = getRedirectLocation(
-        status,
-        redirectIfAuth,
-        redirectIfNoAuth,
-      );
-
       if (status === 401) {
         authStore.invalidateSession();
-      }
-
-      if (redirectLocation) {
-        navigate(redirectLocation, { replace: true });
       }
     },
   });
 
-  // 데이터 로딩이 완료된 상황에서 곧 redirect 될 경우, 페이지 렌더링 방지
-  if (data.status === 'success') {
-    const willBeRedirect = !!getRedirectLocation(
-      data.data.status,
-      redirectIfAuth,
-      redirectIfNoAuth,
-    );
+  const redirectLocation = useMemo(
+    () =>
+      data.status === 'success'
+        ? getRedirectLocation(
+            data.data.status,
+            redirectIfAuth,
+            redirectIfNoAuth,
+          )
+        : null,
+    [data.status, data.data, redirectIfAuth, redirectIfNoAuth],
+  );
 
-    if (willBeRedirect) {
-      return <>{loadingFallback}</>;
+  useEffect(() => {
+    if (redirectLocation) {
+      navigate(redirectLocation, { replace: true });
     }
+  }, [navigate, redirectLocation]);
+
+  if (redirectLocation) {
+    return <>{loadingFallback}</>;
   }
 
   switch (data.status) {
