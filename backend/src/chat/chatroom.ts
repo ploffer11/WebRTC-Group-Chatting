@@ -5,7 +5,7 @@ import { IChatroom } from '@schema/chatroom';
 import { IWebsocketUser } from '@schema/ws';
 
 export class Chatroom implements IChatroom {
-  users: Set<IWebsocketUser> = new Set();
+  users: Map<string, IWebsocketUser> = new Map();
   roomId = '';
 
   constructor(
@@ -27,22 +27,20 @@ export class Chatroom implements IChatroom {
 
   canAccept(user: IWebsocketUser) {
     if (this.currentUserCount >= this.maxUserCount) return false;
-    if (this.users.has(user)) {
-      // TODO: uncomment this line
-      // return false;
-      return true;
+    if (this.users.has(user.username)) {
+      return false;
     }
 
     return true;
   }
 
   enter(user: IWebsocketUser): boolean {
-    this.users.add(user);
+    this.users.set(user.username, user);
     return true;
   }
 
   leave(user: IWebsocketUser) {
-    this.users.delete(user);
+    this.users.delete(user.username);
     return true;
   }
 
