@@ -72,7 +72,7 @@ const useChatStore = create<ChatStore>((set, get) => ({
     if (!socket) return;
 
     socket.emit('leave', { roomId });
-    set({ roomId: null });
+    set({ roomId: null, messages: [] });
   },
 
   chat: (chatText: string) => {
