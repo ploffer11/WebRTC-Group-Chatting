@@ -17,12 +17,16 @@ interface RTCStore {
   streams: { [socketId: string]: MediaStream };
   userNames: { [socketId: string]: string };
 
-  videoStream: Promise<MediaStream>;
-  audioStream: Promise<MediaStream>;
+  mediaStream: MediaStream | null;
 
   socket: SocketType | null;
 
+  enabled: boolean;
+
   initialize: (socket: SocketType) => void;
+
+  registerMediaStream: (stream: MediaStream) => void;
+  startCall: () => void;
 
   newConnection: (toSocketId: string) => Promise<RTCPeerConnection>;
   refreshUsers: ({ users }: ChatroomUsersMessageS2C) => Promise<void>;
@@ -45,12 +49,9 @@ const useRTCStore = create<RTCStore>((set, get) => ({
 
   socket: null,
 
-  videoStream: navigator.mediaDevices.getUserMedia({
-    video: true,
-  }),
-  audioStream: navigator.mediaDevices.getUserMedia({
-    audio: true,
-  }),
+  mediaStream: null,
+
+  enabled: false,
 
   initialize: (socket: SocketType) => {
     const {
@@ -71,8 +72,39 @@ const useRTCStore = create<RTCStore>((set, get) => ({
     set({ socket });
   },
 
+  registerMediaStream: (stream: MediaStream) => {
+    set({ mediaStream: stream });
+  },
+
+  startCall: async () => {
+    const { socket, userNames, newConnection } = get();
+
+    if (socket === null) {
+      throw new Error('Socket is null!');
+    }
+
+    const users = Object.entries(userNames);
+
+    for (const [socketId] of users) {
+      if (socket.id === socketId) {
+        continue;
+      }
+
+      const connection = await newConnection(socketId);
+      const offer = await connection.createOffer();
+      await connection.setLocalDescription(offer);
+
+      socket.emit('offer', {
+        offer,
+        toSocketId: socketId,
+      });
+    }
+
+    set({ enabled: true });
+  },
+
   newConnection: async (toSocketId: string) => {
-    const { socket, videoStream, audioStream } = get();
+    const { socket, mediaStream } = get();
 
     if (!socket) throw new Error('Socket is null');
 
@@ -84,22 +116,21 @@ const useRTCStore = create<RTCStore>((set, get) => ({
       ],
     });
 
-    const streams = await Promise.all([videoStream, audioStream]);
-    const allTracks = streams.map((stream) => stream.getTracks()).flat();
+    if (mediaStream === null) {
+      throw new Error('mediaStream is null');
+    }
 
-    allTracks.forEach((track) => conn.addTrack(track));
+    mediaStream.getTracks().forEach((track) => {
+      conn.addTrack(track, mediaStream);
+    });
 
     conn.addEventListener('icecandidate', ({ candidate }) => {
       socket.emit('candidate', { toSocketId, candidate });
     });
 
-    conn.addEventListener('track', ({ track }) =>
+    conn.addEventListener('track', (event) =>
       set(({ streams }) => {
-        if (!streams[toSocketId]) streams[toSocketId] = new MediaStream();
-        streams[toSocketId].addTrack(track);
-
-        console.log('ontrack');
-
+        streams[toSocketId] = event.streams[0];
         return { streams };
       }),
     );
@@ -113,7 +144,7 @@ const useRTCStore = create<RTCStore>((set, get) => ({
   },
 
   refreshUsers: async ({ users }: ChatroomUsersMessageS2C) => {
-    const { socket, rtcConnections, streams, newConnection } = get();
+    const { socket, rtcConnections, streams } = get();
 
     if (!socket) throw new Error('Socket is null');
 
@@ -143,31 +174,19 @@ const useRTCStore = create<RTCStore>((set, get) => ({
       delete rtcConnections[socketId];
     });
 
-    set({ rtcConnections });
-
-    for (const user of users) {
-      // Earlier Socket ID starts connection
-      if (!rtcConnections[user.socketId] && socket.id < user.socketId) {
-        const connection = await newConnection(user.socketId);
-
-        const offer = await connection.createOffer();
-        await connection.setLocalDescription(offer);
-
-        socket.emit('offer', {
-          offer,
-          toSocketId: user.socketId,
-        });
-      }
-    }
+    set({ rtcConnections, streams });
   },
 
   responseOffer: async ({ fromSocketId, offer }: RTCOfferMessageS2C) => {
-    const { socket, rtcConnections, newConnection } = get();
+    const { socket, enabled, rtcConnections, newConnection } = get();
 
     if (!socket) throw new Error('Socket is null');
+    if (!enabled) {
+      return;
+    }
 
     if (rtcConnections[fromSocketId]) {
-      throw new Error(`Duplicate webrtc offer from socketId ${fromSocketId}`);
+      rtcConnections[fromSocketId].close();
     }
 
     const connection = await newConnection(fromSocketId);
@@ -197,9 +216,12 @@ const useRTCStore = create<RTCStore>((set, get) => ({
     fromSocketId,
     candidate,
   }: RTCICECandidateMesageS2C) => {
-    const { socket, rtcConnections } = get();
+    const { socket, enabled, rtcConnections } = get();
 
     if (!socket) throw new Error('Socket is null');
+    if (!enabled) {
+      return;
+    }
 
     if (!rtcConnections[fromSocketId]) {
       throw new Error(
