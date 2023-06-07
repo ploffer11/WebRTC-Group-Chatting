@@ -1,15 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import ChatIcon from '@mui/icons-material/Chat';
 import {
+  AppBar,
   Container,
+  IconButton,
   Paper,
   Stack,
   TextField,
+  Toolbar,
   Typography,
   Zoom,
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 
+import RTCVideo from '../../components/RTCVideo.js';
 import UserAvatar from '../../components/UserAvatar.js';
 import useTitle from '../../hooks/useTitle.js';
 import useChatStore from '../../store/chat.js';
@@ -45,11 +50,19 @@ const Chatroom = () => {
 
   return (
     <Container maxWidth="sm" sx={{ maxHeight: '100%' }}>
-      <Stack sx={{ mt: 16 }} alignItems={'stretch'} spacing={2}>
-        <Typography align={'center'} variant={'h1'}>
-          Chatroom
-        </Typography>
-        <Stack sx={{ maxHeight: 'sm', overflow: 'auto', mb: 32 }}>
+      <AppBar>
+        <Toolbar>
+          <IconButton color="inherit">
+            <ChatIcon />
+          </IconButton>
+          <Typography align={'center'} variant={'h6'}>
+            Chatroom
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <RTCVideo />
+      <Stack sx={{ mt: 12 }} alignItems={'stretch'} spacing={2}>
+        <Stack sx={{ overflow: 'auto', mb: 8 }}>
           {roomStore.messages.map((message, idx) => (
             <Zoom in={true} key={idx}>
               <Paper elevation={1} sx={{ p: 1, m: 1 }}>
@@ -62,14 +75,17 @@ const Chatroom = () => {
           ))}
         </Stack>
         <Container sx={{ height: 16 }} />
-        <Paper
-          elevation={5}
-          sx={{
-            p: 1,
-            position: 'sticky',
-            bottom: 32,
-          }}
-        >
+      </Stack>
+      <Container
+        maxWidth="sm"
+        sx={{
+          position: 'fixed',
+          bottom: 32,
+          left: 0,
+          right: 0,
+        }}
+      >
+        <Paper elevation={5} sx={{ p: 1 }}>
           <form
             onSubmit={(e) => {
               roomStore.chat(chatText);
@@ -81,6 +97,8 @@ const Chatroom = () => {
             <TextField
               fullWidth={true}
               variant="standard"
+              placeholder="Chat here"
+              autoComplete="off"
               value={chatText}
               onInput={({ target }: React.ChangeEvent<HTMLInputElement>) =>
                 setChatText(target.value ?? '')
@@ -88,7 +106,7 @@ const Chatroom = () => {
             />
           </form>
         </Paper>
-      </Stack>
+      </Container>
     </Container>
   );
 };

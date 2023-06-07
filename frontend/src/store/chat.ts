@@ -5,7 +5,6 @@ import { IClientToServerEvents, IServerToClientEvents } from '@schema/ws';
 import { ChatroomChatMessageS2C } from '@schema/ws/s2c';
 
 import useAuthStore from './auth';
-import RTC from '../utils/rtc';
 
 type SocketType = Socket<IServerToClientEvents, IClientToServerEvents>;
 
@@ -14,7 +13,6 @@ interface ChatStore {
   roomId: string | null;
 
   messages: ChatroomChatMessageS2C[];
-  rtc: RTC | null;
 
   connect: () => void;
 
@@ -53,8 +51,7 @@ const useChatStore = create<ChatStore>((set, get) => ({
 
     socket.on('disconnect', () => set({ socket: null }));
 
-    const rtc = new RTC(socket);
-    set({ socket, rtc });
+    set({ socket });
   },
 
   enter: (roomId: string) => {
