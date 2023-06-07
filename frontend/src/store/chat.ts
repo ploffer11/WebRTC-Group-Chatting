@@ -40,6 +40,11 @@ const useChatStore = create<ChatStore>((set, get) => ({
       },
     });
 
+    socket.on('connect', () => {
+      const { roomId } = get();
+      if (roomId) socket.emit('enter', { roomId });
+    });
+
     socket.on('chat', (msg) =>
       set(({ messages }) => ({
         messages: messages.concat(msg),
@@ -54,14 +59,15 @@ const useChatStore = create<ChatStore>((set, get) => ({
 
   enter: (roomId: string) => {
     const { socket, roomId: oldRoomId } = get();
-    if (!socket) return;
+
+    set({ roomId });
+
     if (oldRoomId) {
       if (roomId === oldRoomId) return;
-      socket.emit('leave', { roomId: oldRoomId });
+      socket?.emit('leave', { roomId: oldRoomId });
     }
 
-    socket.emit('enter', { roomId });
-    set({ roomId });
+    socket?.emit('enter', { roomId });
   },
 
   leave: (roomId: string) => {
@@ -69,7 +75,7 @@ const useChatStore = create<ChatStore>((set, get) => ({
     if (!socket) return;
 
     socket.emit('leave', { roomId });
-    set({ roomId });
+    set({ roomId: null });
   },
 
   chat: (chatText: string) => {

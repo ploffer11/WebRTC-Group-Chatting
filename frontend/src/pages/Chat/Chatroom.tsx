@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   Container,
@@ -20,6 +20,7 @@ const Chatroom = () => {
   const params = useParams();
   const roomId = useMemo(() => params['roomId'] ?? null, [params]);
   const roomStore = useChatStore();
+  const storeRef = useRef(() => roomStore);
 
   const [chatText, setChatText] = useState('');
 
@@ -30,8 +31,10 @@ const Chatroom = () => {
   useEffect(() => {
     if (!roomId) return;
 
-    roomStore.enter(roomId);
-  }, [roomStore, roomId]);
+    storeRef.current().enter(roomId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => storeRef.current().leave(roomId);
+  }, [roomId]);
 
   useEffect(() => {
     scrollTo({
