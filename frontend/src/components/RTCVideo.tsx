@@ -1,62 +1,103 @@
-import { MutableRefObject, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
-import { Stack } from '@mui/material';
+import MicIcon from '@mui/icons-material/Mic';
+import { Box, Chip } from '@mui/material';
 
-import useRTCStore from '../store/rtc';
+import UserAvatar from './UserAvatar.tsx';
+import useRTCStore from '../store/rtc.ts';
 
-const RTCVideo = () => {
+interface RTCVideoProps {
+  stream: MediaStream | null;
+  userName: string;
+  mute?: boolean;
+}
+
+const RTCVideo = (props: RTCVideoProps) => {
   const rtcStore = useRTCStore();
+  const { userName, stream, mute } = props;
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const mode = rtcStore.chatMode;
 
-  const streams = useMemo(() => rtcStore.streams ?? {}, [rtcStore.streams]);
-  const streamKeys = Object.keys(rtcStore.streams);
-
-  const videoRefs: MutableRefObject<HTMLVideoElement | null>[] = [];
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  for (let i = 0; i < 6; i++) videoRefs.push(useRef<HTMLVideoElement>(null));
-
-  useEffect(() => {
-    streamKeys.forEach((key, idx) => {
-      const video = videoRefs[idx].current;
-      if (video && video.srcObject !== streams[key]) {
-        video.srcObject = streams[key];
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [streamKeys]);
-
-  const myVideoRef = useRef<HTMLVideoElement>(null);
-  const myMediaStream = rtcStore.mediaStream;
+  const isAudioOnly = useMemo(() => {
+    return (
+      mode === 'audio' ||
+      (stream?.getTracks() ?? []).every((track) => track.kind === 'audio')
+    );
+  }, [mode, stream]);
 
   useEffect(() => {
-    if (myMediaStream !== null && myVideoRef.current) {
-      myVideoRef.current.volume = 0; // 하울링 방지
-      myVideoRef.current.srcObject = myMediaStream;
+    if (!videoRef.current || !stream) {
+      return;
     }
-  }, [myMediaStream]);
+
+    videoRef.current.srcObject = stream;
+  }, [stream]);
+
+  useEffect(() => {
+    if (!videoRef.current) {
+      return;
+    }
+
+    videoRef.current.volume = mute ? 0 : 1;
+  }, [mute]);
 
   return (
-    <Stack direction={'row'} mt={8}>
-      {myMediaStream !== null && (
-        <video
-          style={{ width: '200px', aspectRatio: 16 / 9 }}
-          ref={myVideoRef}
-          onLoadedMetadata={({ target }) => {
-            (target as HTMLVideoElement).play();
+    <Box
+      sx={{
+        width: '100%',
+        aspectRatio: `${16 / 9}`,
+        position: 'relative',
+      }}
+    >
+      <video
+        ref={videoRef}
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        onLoadedMetadata={(event) => {
+          (event.currentTarget as HTMLVideoElement).play();
+        }}
+      />
+
+      {isAudioOnly && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 1,
+            backgroundColor: 'black',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
-        />
+        >
+          <MicIcon sx={{ color: 'white' }} fontSize={'large'} />
+        </Box>
       )}
 
-      {Object.entries(streams).map((_, idx) => (
-        <video
-          style={{ width: '200px', aspectRatio: 16 / 9 }}
-          key={idx}
-          ref={videoRefs[idx]}
-          onLoadedMetadata={({ target }) => {
-            (target as HTMLVideoElement).play();
-          }}
-        />
-      ))}
-    </Stack>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          m: 0.5,
+          opacity: 0.4,
+        }}
+      >
+        <Chip
+          avatar={<UserAvatar username={userName} />}
+          label={userName}
+          variant={'filled'}
+          color={'primary'}
+          size={'small'}
+        ></Chip>
+      </Box>
+    </Box>
   );
 };
+
+export type { RTCVideoProps };
+
 export default RTCVideo;
