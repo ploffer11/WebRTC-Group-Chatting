@@ -17,9 +17,10 @@ import {
   IconButton,
 } from '@mui/material';
 
+import useRTCStore from '../store/rtc.ts';
+
 interface MediaDeviceSelectDialogProps {
   open: boolean;
-  mode: 'audio' | 'video';
   onCancel: () => void;
   onConfirm: (stream: MediaStream) => void;
 }
@@ -39,7 +40,10 @@ async function getInitialUserMediaAndDevices(mode: 'audio' | 'video') {
   return { stream, devices };
 }
 const MediaDeviceSelectDialog = (props: MediaDeviceSelectDialogProps) => {
-  const { open, mode, onCancel, onConfirm } = props;
+  const { open, onCancel, onConfirm } = props;
+
+  const rtcStore = useRTCStore();
+  const mode = rtcStore.chatMode;
 
   const modeRef = useRef(mode);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);

@@ -21,12 +21,16 @@ interface RTCStore {
 
   socket: SocketType | null;
 
+  chatMode: 'audio' | 'video';
+
   enabled: boolean;
 
   initialize: (socket: SocketType) => void;
   clear: () => void;
 
   registerMediaStream: (stream: MediaStream) => void;
+  setChatMode: (mode: 'audio' | 'video') => void;
+
   startCall: () => void;
   hangUpCall: () => void;
 
@@ -54,6 +58,8 @@ const useRTCStore = create<RTCStore>((set, get) => ({
   mediaStream: null,
 
   enabled: false,
+
+  chatMode: 'video',
 
   initialize: (socket: SocketType) => {
     const {

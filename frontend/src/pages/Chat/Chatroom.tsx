@@ -47,7 +47,6 @@ const Chatroom = () => {
   const [chatMenuAnchorEl, setChatMenuAnchorEl] =
     useState<HTMLButtonElement | null>(null);
 
-  const [rtcChatMode, setRtcChatMode] = useState<'audio' | 'video'>('video');
   const [openDeviceSelectDialog, setOpenDeviceSelectDialog] = useState(false);
 
   useEffect(() => {
@@ -177,7 +176,7 @@ const Chatroom = () => {
               >
                 <MenuItem
                   onClick={() => {
-                    setRtcChatMode('audio');
+                    rtcStore.setChatMode('audio');
                     setOpenDeviceSelectDialog(true);
                   }}
                 >
@@ -189,7 +188,7 @@ const Chatroom = () => {
 
                 <MenuItem
                   onClick={() => {
-                    setRtcChatMode('video');
+                    rtcStore.setChatMode('video');
                     setOpenDeviceSelectDialog(true);
                   }}
                 >
