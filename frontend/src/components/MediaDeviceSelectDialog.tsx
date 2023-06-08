@@ -143,8 +143,13 @@ const MediaDeviceSelectDialog = (props: MediaDeviceSelectDialogProps) => {
     [audioInputDevice, videoInputDevice],
   );
 
+  const handleCancel = useCallback(() => {
+    (mediaStream?.getTracks() ?? []).forEach((track) => track.stop());
+    onCancel();
+  }, [onCancel, mediaStream]);
+
   return (
-    <Dialog open={open} onClose={onCancel} maxWidth={'sm'} fullWidth={true}>
+    <Dialog open={open} onClose={handleCancel} maxWidth={'sm'} fullWidth={true}>
       <DialogTitle
         sx={{
           display: 'flex',
@@ -153,7 +158,7 @@ const MediaDeviceSelectDialog = (props: MediaDeviceSelectDialogProps) => {
         }}
       >
         기기 선택
-        <IconButton onClick={onCancel}>
+        <IconButton onClick={handleCancel}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -227,7 +232,7 @@ const MediaDeviceSelectDialog = (props: MediaDeviceSelectDialogProps) => {
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onCancel}>취소</Button>
+        <Button onClick={handleCancel}>취소</Button>
         <Button
           disabled={mediaStream === null}
           onClick={() => {
