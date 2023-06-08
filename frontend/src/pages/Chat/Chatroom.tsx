@@ -57,6 +57,10 @@ const Chatroom = () => {
   useEffect(() => {
     if (chatStore.socket) {
       rtcStoreRef.current.initialize(chatStore.socket);
+
+      return () => {
+        rtcStoreRef.current.clear();
+      };
     }
   }, [chatStore.socket]);
 

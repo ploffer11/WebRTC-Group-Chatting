@@ -24,9 +24,11 @@ interface RTCStore {
   enabled: boolean;
 
   initialize: (socket: SocketType) => void;
+  clear: () => void;
 
   registerMediaStream: (stream: MediaStream) => void;
   startCall: () => void;
+  hangUpCall: () => void;
 
   newConnection: (toSocketId: string) => Promise<RTCPeerConnection>;
   refreshUsers: ({ users }: ChatroomUsersMessageS2C) => Promise<void>;
@@ -72,8 +74,24 @@ const useRTCStore = create<RTCStore>((set, get) => ({
     set({ socket });
   },
 
+  clear: () => {
+    const { socket: oldSocket, enabled, hangUpCall } = get();
+
+    oldSocket?.close();
+
+    if (enabled) {
+      hangUpCall();
+    }
+
+    set({ socket: null });
+  },
+
   registerMediaStream: (stream: MediaStream) => {
     set({ mediaStream: stream });
+  },
+
+  setChatMode: (mode: 'audio' | 'video') => {
+    set({ chatMode: mode });
   },
 
   startCall: async () => {
@@ -101,6 +119,23 @@ const useRTCStore = create<RTCStore>((set, get) => ({
     }
 
     set({ enabled: true });
+  },
+
+  hangUpCall: () => {
+    const { rtcConnections, mediaStream } = get();
+
+    Object.values(rtcConnections).forEach((conn) => {
+      conn.close();
+    });
+
+    (mediaStream?.getTracks() ?? []).forEach((track) => track.stop());
+
+    set({
+      enabled: false,
+      mediaStream: null,
+      rtcConnections: {},
+      streams: {},
+    });
   },
 
   newConnection: async (toSocketId: string) => {
