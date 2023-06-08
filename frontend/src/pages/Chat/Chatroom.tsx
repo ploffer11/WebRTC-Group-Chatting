@@ -25,7 +25,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 
 import MediaDeviceSelectDialog from '../../components/MediaDeviceSelectDialog.tsx';
-import RTCVideo from '../../components/RTCVideo.js';
+import RTCChatSection from '../../components/RTCChatSection.tsx';
 import UserAvatar from '../../components/UserAvatar.js';
 import useTitle from '../../hooks/useTitle.js';
 import useChatStore from '../../store/chat.js';
@@ -80,7 +80,7 @@ const Chatroom = () => {
 
   return (
     <React.Fragment>
-      <AppBar>
+      <AppBar position={'sticky'}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Box sx={{ flex: 1 }}>
             <IconButton
@@ -101,26 +101,8 @@ const Chatroom = () => {
           <Box sx={{ flex: 1 }}></Box>
         </Toolbar>
       </AppBar>
-      <Toolbar />
-      <Container maxWidth="sm" sx={{ maxWidth: '100%' }}>
-        {rtcStore.enabled && <RTCVideo />}
-        <MediaDeviceSelectDialog
-          open={openDeviceSelectDialog}
-          mode={rtcChatMode}
-          onCancel={() => {
-            setOpenDeviceSelectDialog(false);
-            setChatMenuAnchorEl(null);
-          }}
-          onConfirm={(stream) => {
-            setOpenDeviceSelectDialog(false);
-            setChatMenuAnchorEl(null);
-
-            if (rtcStore.socket !== null) {
-              rtcStore.registerMediaStream(stream);
-              rtcStore.startCall();
-            }
-          }}
-        />
+      <Container maxWidth="sm" sx={{ maxWidth: '100%', maxHeight: '100%' }}>
+        {rtcStore.enabled && <RTCChatSection />}
         <Stack alignItems={'stretch'} spacing={2}>
           <Stack sx={{ overflow: 'auto', mb: 8 }}>
             {chatStore.messages.map((message, idx) => (
@@ -143,6 +125,7 @@ const Chatroom = () => {
           </Stack>
           <Box sx={{ height: 16 }} />
         </Stack>
+
         <Box
           maxWidth={'sm'}
           sx={{
@@ -243,6 +226,22 @@ const Chatroom = () => {
           </Paper>
         </Box>
       </Container>
+      <MediaDeviceSelectDialog
+        open={openDeviceSelectDialog}
+        onCancel={() => {
+          setOpenDeviceSelectDialog(false);
+          setChatMenuAnchorEl(null);
+        }}
+        onConfirm={(stream) => {
+          setOpenDeviceSelectDialog(false);
+          setChatMenuAnchorEl(null);
+
+          if (rtcStore.socket !== null) {
+            rtcStore.registerMediaStream(stream);
+            rtcStore.startCall();
+          }
+        }}
+      />
     </React.Fragment>
   );
 };
