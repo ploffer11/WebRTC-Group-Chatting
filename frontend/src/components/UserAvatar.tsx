@@ -1,4 +1,4 @@
-import { Avatar, Tooltip } from '@mui/material';
+import { Avatar, AvatarProps, Tooltip } from '@mui/material';
 
 function userColor(username: string) {
   let hash = 0;
@@ -10,10 +10,16 @@ function userColor(username: string) {
   return `#${hash.toString(16).padStart(6, '0')}`;
 }
 
-const UserAvatar = ({ username }: { username: string }) => {
+interface UserAvatarProps extends AvatarProps {
+  username: string;
+}
+
+const UserAvatar = (props: UserAvatarProps) => {
+  const { username, ...otherProps } = props;
+
   return (
     <Tooltip title={username}>
-      <Avatar sx={{ bgcolor: userColor(username) }}>
+      <Avatar sx={{ bgcolor: userColor(username) }} {...otherProps}>
         {username.slice(0, 1)}
       </Avatar>
     </Tooltip>
