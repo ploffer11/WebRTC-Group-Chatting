@@ -21,7 +21,9 @@
     "build": "npm run build:back && npm run build:front",
     "test:front": "#npm test --prefix frontend",
     "test:back": "#npm test --prefix backend",
-    "test": "npm run test:back && npm run test:front"
+    "test": "npm run test:back && npm run test:front",
+    "start:back": "npm run start:prod --prefix backend",
+    "start": "npm run start:back"
   },
   "keywords": [],
   "author": "",
