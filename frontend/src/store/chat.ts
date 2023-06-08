@@ -1,10 +1,8 @@
-import { Socket, io } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { create } from 'zustand';
 
 import { IClientToServerEvents, IServerToClientEvents } from '@schema/ws';
 import { ChatroomChatMessageS2C } from '@schema/ws/s2c';
-
-import useAuthStore from './auth';
 
 type SocketType = Socket<IServerToClientEvents, IClientToServerEvents>;
 
@@ -14,7 +12,8 @@ interface ChatStore {
 
   messages: ChatroomChatMessageS2C[];
 
-  connect: () => void;
+  initialize: (socket: SocketType) => void;
+  cleanUp: () => void;
 
   enter: (roomId: string) => void;
   chat: (chatText: string) => void;
@@ -27,44 +26,46 @@ const useChatStore = create<ChatStore>((set, get) => ({
   messages: [],
   rtc: null,
 
-  connect: () => {
-    const { access_token } = useAuthStore.getState();
-
-    if (get().socket) return;
-
-    const socket: SocketType = io(import.meta.env.VITE_API_URL, {
-      extraHeaders: {
-        authorization: `Bearer ${access_token}`,
-      },
-    });
-
-    socket.on('connect', () => {
-      const { roomId } = get();
-      if (roomId) socket.emit('enter', { roomId });
-    });
-
+  initialize: (socket: SocketType) => {
     socket.on('chat', (msg) =>
       set(({ messages }) => ({
         messages: messages.concat(msg),
       })),
     );
 
-    socket.on('disconnect', () => set({ socket: null }));
+    socket.on('connect', () => {
+      set({ socket });
+      const { roomId } = get();
+      if (roomId) {
+        socket.emit('enter', { roomId });
+      }
+    });
 
-    set({ socket });
+    socket.on('disconnect', () => {
+      set({ socket: null });
+    });
+  },
+
+  cleanUp: () => {
+    const { leave, roomId } = get();
+
+    if (roomId !== null) leave(roomId);
+    set({ socket: null });
   },
 
   enter: (roomId: string) => {
     const { socket, roomId: oldRoomId } = get();
-
     set({ roomId });
 
-    if (oldRoomId) {
-      if (roomId === oldRoomId) return;
-      socket?.emit('leave', { roomId: oldRoomId });
+    if (!socket) {
+      return;
     }
 
-    socket?.emit('enter', { roomId });
+    if (oldRoomId !== null) {
+      throw new Error('double enter');
+    }
+
+    socket.emit('enter', { roomId });
   },
 
   leave: (roomId: string) => {

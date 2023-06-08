@@ -23,13 +23,33 @@ import {
   MenuItem,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
+import { io, Socket } from 'socket.io-client';
 
+import {
+  IClientToServerEvents,
+  IServerToClientEvents,
+} from '../../../../schema/ws';
 import MediaDeviceSelectDialog from '../../components/MediaDeviceSelectDialog.tsx';
 import RTCChatSection from '../../components/RTCChatSection.tsx';
 import UserAvatar from '../../components/UserAvatar.js';
 import useTitle from '../../hooks/useTitle.js';
+import useAuthStore from '../../store/auth.ts';
 import useChatStore from '../../store/chat.js';
 import useRTCStore from '../../store/rtc.ts';
+
+type SocketType = Socket<IServerToClientEvents, IClientToServerEvents>;
+
+const createSocket = () => {
+  const { access_token } = useAuthStore.getState();
+
+  const socket: SocketType = io(import.meta.env.VITE_API_URL, {
+    extraHeaders: {
+      authorization: `Bearer ${access_token}`,
+    },
+  });
+
+  return socket;
+};
 
 const Chatroom = () => {
   useTitle('Chatroom');
@@ -50,28 +70,45 @@ const Chatroom = () => {
   const [openDeviceSelectDialog, setOpenDeviceSelectDialog] = useState(false);
 
   useEffect(() => {
-    if (!chatStore.socket) chatStore.connect();
-  }, [chatStore]);
-
-  useEffect(() => {
-    if (chatStore.socket) {
-      rtcStoreRef.current.initialize(chatStore.socket);
-
-      return () => {
-        // store는 앱의 life cycle 동안 바뀌지 않을 것으로 기대됨
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        rtcStoreRef.current.clear();
-      };
-    }
-  }, [chatStore.socket]);
-
-  useEffect(() => {
     if (!roomId) return;
+    const chatStore = chatStoreRef.current;
+    const rtcStore = rtcStoreRef.current;
 
-    chatStoreRef.current.enter(roomId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    return () => chatStoreRef.current.leave(roomId);
+    chatStore.enter(roomId);
+
+    return () => {
+      rtcStore.leave();
+      chatStore.leave(roomId);
+    };
   }, [roomId]);
+
+  useEffect(() => {
+    let socket = createSocket();
+    const chatStore = chatStoreRef.current;
+    const rtcStore = rtcStoreRef.current;
+    function connect(reconnect?: boolean) {
+      if (reconnect) {
+        socket = createSocket();
+      }
+      chatStore.initialize(socket);
+      rtcStore.initialize(socket);
+
+      socket.on('disconnect', () => {
+        // try reconnect
+        // connect(true);
+      });
+    }
+
+    connect();
+
+    return () => {
+      chatStore.cleanUp();
+      rtcStore.cleanUp();
+
+      socket.removeAllListeners();
+      socket.close();
+    };
+  }, []);
 
   useEffect(() => {
     scrollTo({

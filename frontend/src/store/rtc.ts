@@ -26,7 +26,8 @@ interface RTCStore {
   enabled: boolean;
 
   initialize: (socket: SocketType) => void;
-  clear: () => void;
+  leave: () => void;
+  cleanUp: () => void;
 
   registerMediaStream: (stream: MediaStream) => void;
   setChatMode: (mode: 'audio' | 'video') => void;
@@ -62,15 +63,8 @@ const useRTCStore = create<RTCStore>((set, get) => ({
   chatMode: 'video',
 
   initialize: (socket: SocketType) => {
-    const {
-      socket: oldSocket,
-      refreshUsers,
-      responseOffer,
-      handleAnswer,
-      checkIceCandidate,
-    } = get();
-
-    oldSocket?.close();
+    const { refreshUsers, responseOffer, handleAnswer, checkIceCandidate } =
+      get();
 
     socket.on('users', (msg) => refreshUsers(msg));
     socket.on('offer', (msg) => responseOffer(msg));
@@ -80,16 +74,20 @@ const useRTCStore = create<RTCStore>((set, get) => ({
     set({ socket });
   },
 
-  clear: () => {
-    const { socket: oldSocket, enabled, hangUpCall } = get();
+  cleanUp: () => {
+    const { leave } = get();
+    leave();
+    set({ socket: null });
+  },
 
-    oldSocket?.close();
+  leave: () => {
+    const { enabled, hangUpCall } = get();
 
     if (enabled) {
       hangUpCall();
     }
 
-    set({ socket: null });
+    set({ userNames: {} });
   },
 
   registerMediaStream: (stream: MediaStream) => {
