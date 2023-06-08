@@ -6,7 +6,7 @@ import { Box, Button, Grid, Paper } from '@mui/material';
 import RTCVideo from './RTCVideo.tsx';
 import useRTCStore from '../store/rtc';
 
-const usingThird = new Set([3, 6]);
+const usingThird = new Set([3, 5, 6]);
 
 const RTCChatSection = () => {
   const rtcStore = useRTCStore();
@@ -20,7 +20,7 @@ const RTCChatSection = () => {
       elevation={5}
     >
       <Grid container spacing={1} justifyContent={'center'}>
-        <Grid item xs={userCount in usingThird ? 4 : 6}>
+        <Grid item xs={usingThird.has(userCount) ? 4 : 6}>
           <RTCVideo
             userName={
               rtcStore.socket
