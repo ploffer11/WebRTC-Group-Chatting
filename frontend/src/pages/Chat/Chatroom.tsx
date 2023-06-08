@@ -179,6 +179,7 @@ const Chatroom = () => {
                     rtcStore.setChatMode('audio');
                     setOpenDeviceSelectDialog(true);
                   }}
+                  disabled={rtcStore.enabled}
                 >
                   <ListItemIcon>
                     <VoiceChatIcon />
@@ -191,6 +192,7 @@ const Chatroom = () => {
                     rtcStore.setChatMode('video');
                     setOpenDeviceSelectDialog(true);
                   }}
+                  disabled={rtcStore.enabled}
                 >
                   <ListItemIcon>
                     <VideoChatIcon />
