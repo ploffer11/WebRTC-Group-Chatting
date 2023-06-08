@@ -58,6 +58,8 @@ const Chatroom = () => {
       rtcStoreRef.current.initialize(chatStore.socket);
 
       return () => {
+        // store는 앱의 life cycle 동안 바뀌지 않을 것으로 기대됨
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         rtcStoreRef.current.clear();
       };
     }
