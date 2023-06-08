@@ -27,21 +27,20 @@ export class Chatroom implements IChatroom {
 
   canAccept(user: IWebsocketUser) {
     if (this.currentUserCount >= this.maxUserCount) return false;
-    if (this.users.has(user.username)) {
-      console.log('alreay in chatroom');
-      return true;
+    if (this.users.has(user.socketId)) {
+      return false;
     }
 
     return true;
   }
 
   enter(user: IWebsocketUser): boolean {
-    this.users.set(user.username, user);
+    this.users.set(user.socketId, user);
     return true;
   }
 
   leave(user: IWebsocketUser) {
-    this.users.delete(user.username);
+    this.users.delete(user.socketId);
     return true;
   }
 
