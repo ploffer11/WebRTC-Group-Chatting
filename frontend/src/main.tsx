@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
-  createBrowserRouter,
+  createHashRouter,
   createRoutesFromElements,
   Route,
   RouterProvider,
@@ -24,7 +24,7 @@ import {
 
 import './fonts.css';
 
-const router = createBrowserRouter(
+const router = createHashRouter(
   createRoutesFromElements(
     <Route path={'/'} element={<Base />}>
       <Route index {...IndexRoute} element={<Loading />} />
