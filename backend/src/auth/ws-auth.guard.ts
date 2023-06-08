@@ -35,7 +35,7 @@ export class WsAuthGuard implements CanActivate {
       client.data = {
         user: { username: payload.username, socketId: client.id },
       };
-      console.log(payload);
+      // console.log(payload);
       return true;
     } catch (e) {
       throw new WsException('Invalid Jwt token');
