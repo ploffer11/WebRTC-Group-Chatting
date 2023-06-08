@@ -3,7 +3,6 @@ import {
   ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
-  OnGatewayDisconnect,
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
@@ -46,9 +45,7 @@ import { WsAuthGuard } from '../auth/ws-auth.guard';
   },
 })
 @UseGuards(WsAuthGuard)
-export class ChatGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+export class ChatGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer()
   server!: WebSocketServerType;
 
@@ -61,6 +58,10 @@ export class ChatGateway
 
   handleConnection(@ConnectedSocket() client: WebSocketType) {
     console.log('connect:', client.id);
+
+    client.on('disconnecting', () => {
+      this.chatService.leaveAll(client);
+    });
   }
 
   @SubscribeMessage('enter')
@@ -114,9 +115,5 @@ export class ChatGateway
     { roomId }: ChatroomLeaveDto,
   ) {
     await this.chatService.leave(roomId, client);
-  }
-
-  handleDisconnect(@ConnectedSocket() client: WebSocketType) {
-    this.chatService.leaveAll(client);
   }
 }
