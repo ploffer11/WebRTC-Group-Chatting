@@ -3,7 +3,7 @@
 name: Build Pages
 
 env:
-  VITE_API_URL: https://wrtcapi.laireyx.net
+  VITE_API_URL: https://wrtcapi.laireyx.net:8443
 
 # Controls when the workflow will run
 on:
