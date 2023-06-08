@@ -10,6 +10,6 @@ RUN npm install
 
 RUN npm run build:back
 
-EXPOSE 3000
+EXPOSE 8443
 
 CMD ["npm", "run", "start:prod", "--prefix", "backend"]
