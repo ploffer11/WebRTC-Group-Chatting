@@ -231,7 +231,9 @@ export class ChatService {
    */
   leaveAll(client: WebSocketType) {
     client.rooms.forEach((roomId) => {
-      this.leave(roomId, client);
+      this.leave(roomId, client).catch((err) => {
+        console.error(err);
+      });
     });
   }
 }
