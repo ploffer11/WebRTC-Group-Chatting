@@ -25,10 +25,8 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 
-import {
-  IClientToServerEvents,
-  IServerToClientEvents,
-} from '../../../../schema/ws';
+import { IClientToServerEvents, IServerToClientEvents } from '@schema/ws';
+
 import MediaDeviceSelectDialog from '../../components/MediaDeviceSelectDialog.tsx';
 import RTCChatSection from '../../components/RTCChatSection.tsx';
 import UserAvatar from '../../components/UserAvatar.js';
