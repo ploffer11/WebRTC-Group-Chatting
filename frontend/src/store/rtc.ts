@@ -152,6 +152,11 @@ const useRTCStore = create<RTCStore>((set, get) => ({
         {
           urls: 'stun:stun1.l.google.com:19302',
         },
+        {
+          urls: 'turn:122.44.165.52:8090',
+          username: 'username',
+          credential: 'password',
+        },
       ],
     });
 
